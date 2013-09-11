@@ -16,7 +16,7 @@ object Expr {
     def print = "(+ " + e1.print + " " + e2.print + ")"
     def copy: Expr = Plus(e1.copy, e2.copy)
     def duplicate: Expr = {
-      Plus(e1.copy, e2.copy)
+      Plus(e1.duplicate, e2.duplicate)
     }
   }
 
@@ -26,7 +26,16 @@ object Expr {
     def print = "(* " + e1.print + " " + e2.print + ")"
     def copy: Expr = Times(e1.copy, e2.copy)
     def duplicate: Expr = {
-      Times(e1.copy, e2.copy)
+      if(e2.eval == Num(2).eval) {
+        Plus(e1.duplicate, e1.duplicate) 
+      }
+      else if(e1.eval == Num(2).eval){
+        Plus(e2.duplicate, e2.duplicate)
+      }
+      else {
+        Times(e1.duplicate, e2.duplicate)
+      }
+      
     }
   }
 
