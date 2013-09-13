@@ -2,7 +2,7 @@
 // change this code so that it will replace any expression that is either
 // two times a subexpression, or a subexpression times two, with
 // the sum of that subexpression with itself.
-
+//solved
 abstract class Expr {
   def eval : Int
   def print : String
