@@ -2,14 +2,14 @@
 // change this code so that it will replace any expression that is either
 // two times a subexpression, or a subexpression times two, with
 // the sum of that subexpression with itself.
-
+// This is modified code
 abstract class Expr {
   def eval : Int
   def print : String
   def copy: Expr
   def duplicate: Expr
 }
-//commnt
+
 object Expr {
   case class Plus(e1: Expr, e2: Expr) extends Expr {
     def eval = e1.eval + e2.eval
@@ -26,10 +26,10 @@ object Expr {
     def print = "(* " + e1.print + " " + e2.print + ")"
     def copy: Expr = Times(e1.copy, e2.copy)
     def duplicate: Expr = {
-      if(e2.eval == Num(2).eval) {
+      if(e2 == Num(2)) {
         Plus(e1.duplicate, e1.duplicate) 
       }
-      else if(e1.eval == Num(2).eval){
+      else if(e1 == Num(2)){
         Plus(e2.duplicate, e2.duplicate)
       }
       else {
