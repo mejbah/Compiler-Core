@@ -1,8 +1,5 @@
 package edu.utsa.tl13;
 
-import java.io.FileReader;
-import java.io.OutputStream;
-import java.io.FileOutputStream;
 import java.io.IOException;
 
 
@@ -21,13 +18,22 @@ public class Compiler {
 
 	System.out.println("Input file: " + inputFileName);
 	System.out.println("Output file: " + parseOutName);
-
-	FileReader tl12In = new FileReader(inputFileName);
+	
+	Scanner scanner = new Scanner(inputFileName);
+	scanner.startScanner();
+	
+	for( Token t : scanner.getTokenList() ) {
+		System.out.println(t);
+	}
+	
+/*****************************************************************************
+	
+    FileReader tl12In = new FileReader(inputFileName);
 	OutputStream parseOut = new FileOutputStream(parseOutName);
 	
 	//Parser parser = new Parser(tl12In, parseOut);
 	//parser.program();
-	
+
 	// Remove code below:
 	java.io.LineNumberReader lr = new java.io.LineNumberReader(tl12In);
 	java.io.PrintStream ps = new java.io.PrintStream(parseOut);
@@ -45,5 +51,6 @@ public class Compiler {
 	}	
 	lr.close();
 	ps.close();
-    }
+ ********************************************************************************/ 
+ }
 }
