@@ -35,9 +35,14 @@ public class Scanner {
 	void updateTokenList( String line ) {
 		//TODO : comment % replace with whitespace 
 		line = line.trim(); // remove leading whitespace
+		
+		if( line.length() == 0 ) return; // line with only whitespace;
+		
 		String delims = "[ ]+"; // tokens are separated by one or more space
 		String[] words = line.split(delims);
 		 
+		if( words[0].equals("%")) return; // skip comment line  as whitespace
+		
 		 for( int i=0; i<words.length; i++)
 		 {
 			 //check valid tokens

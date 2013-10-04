@@ -21,11 +21,14 @@ public class Compiler {
 	
 	Scanner scanner = new Scanner(inputFileName);
 	scanner.startScanner();
-	
+/*
 	for( Token t : scanner.getTokenList() ) {
 		System.out.println(t);
 	}
-	
+*/
+	Parser parser = new Parser(scanner.getTokenList());
+	parser.parse();
+
 /*****************************************************************************
 	
     FileReader tl12In = new FileReader(inputFileName);
