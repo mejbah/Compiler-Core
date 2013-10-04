@@ -28,6 +28,7 @@ public class Compiler {
 */
 	Parser parser = new Parser(scanner.getTokenList());
 	parser.parse();
+	// add code for writing output file
 
 /*****************************************************************************
 	
