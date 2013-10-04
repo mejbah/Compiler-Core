@@ -1,6 +1,8 @@
 package edu.utsa.tl13;
 
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.OutputStream;
 
 
 public class Compiler {
@@ -26,9 +28,15 @@ public class Compiler {
 		System.out.println(t);
 	}
 */
+
 	Parser parser = new Parser(scanner.getTokenList());
-	parser.parse();
+	String parseTree = parser.parse();
+	
+	
 	// add code for writing output file
+	OutputStream parseOut = new FileOutputStream(parseOutName);
+	java.io.PrintStream ps = new java.io.PrintStream(parseOut);
+	ps.print(parseTree);
 
 /*****************************************************************************
 	

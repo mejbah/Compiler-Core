@@ -8,7 +8,7 @@ import java.util.ArrayList;
  *
  */
 
-public class Declarations {
+public class Declarations implements Visitable {
 	
 	public ArrayList<DeclarationUnit> declarations;
 	public Declarations() {
@@ -19,7 +19,13 @@ public class Declarations {
 		declarations.add(d);
 	}
 	
+	public ArrayList<DeclarationUnit> getDeclarationList() {
+		return declarations;
+	}
 	
+	public void accept( Visitor visitor ) {
+		visitor.visit(this);
+	}
 	
 	
 }

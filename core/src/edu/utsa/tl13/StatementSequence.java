@@ -2,7 +2,7 @@ package edu.utsa.tl13;
 
 import java.util.ArrayList;
 
-public class StatementSequence {
+public class StatementSequence implements Visitable {
 	
 	public ArrayList<Statement> stmt;
 	public StatementSequence() {
@@ -13,6 +13,13 @@ public class StatementSequence {
 	
 	public void addStatement( Statement statement ) {
 		stmt.add(statement);
+	}
+	
+	public ArrayList<Statement> getStatements() {
+		return stmt;
+	}
+	public void accept( Visitor visitor ) {
+		visitor.visit(this);
 	}
 
 }

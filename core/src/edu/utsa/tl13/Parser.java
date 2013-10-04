@@ -38,11 +38,21 @@ public class Parser {
 		else
 			return tokens.get(symbol_cursor_pos);
 	}
-	
-	public void parse() {
-		if(program() == null) {
+	/*
+	 * returns text string describing parse tree
+	 */
+	public String parse() {
+		Program p;
+		if( (p = program()) == null) {
 			System.err.println("Program error");
+			return null;
 		}
+		
+		ParseTreeVisitor visitor = new ParseTreeVisitor();
+		p.accept(visitor);
+		
+		//System.out.println(visitor.getTextToWrite());
+		return visitor.getTextToWrite();
 	}
 	
 	Program program() {
@@ -77,18 +87,25 @@ public class Parser {
 	Declarations declarations() {
 		//first rule
 		Declarations dcls;
-		if( checkNextToken("VAR") && checkNextToken("ident") && checkNextToken("AS")) {
-			TypeRule type = type_rule();
-			if( type != null && checkNextToken("SC") && (dcls = declarations()) != null) {
-				dcls.addDeclaration(new DeclarationUnit(type));
-				return dcls;
+		String ident;
+		if( checkNextToken("VAR") && checkNextToken("ident")) {
+			ident = getCurrentToken().getWord();
+			if (checkNextToken("AS")){ 
+				TypeRule type = type_rule();
+				if( type != null && checkNextToken("SC") && (dcls = declarations()) != null) {
+					dcls.addDeclaration(new DeclarationUnit(type, ident));
+					return dcls;
 				
+				}
+				else {
+					System.err.println(" Syntax Error : in declarations() "  + getCurrentToken() );
+					return null;
+				}
 			}
 			else {
 				System.err.println(" Syntax Error : in declarations() "  + getCurrentToken() );
 				return null;
 			}
-			
 		}
 		else if( checkNextTokenNoUpdate("BEGIN")) {
 			// empty rule
@@ -136,10 +153,82 @@ public class Parser {
 		if( checkNextTokenNoUpdate("WRITEINT")) {
 			return writeInt();
 		}
+		else if ( checkNextTokenNoUpdate("ident")) {
+			return assignment();
+		}
+		else if ( checkNextTokenNoUpdate("IF")) {
+			return if_statement();
+		}
+		else if ( checkNextTokenNoUpdate("WHILE")) {
+			return while_statement();
+		}
 		else {
 			System.err.println(" Syntax Error : in statement() "  + getCurrentToken() );
 			return null;
 		}
+	}
+	WhileStatement while_statement() {
+		StatementSequence s;
+		Expression e;
+		if( checkNextToken("WHILE") && (e = expression()) != null && checkNextToken("DO") && ( s = statement_sequence())!= null ) {
+			return new WhileStatement(e, s);
+		}
+		else {
+			System.err.println(" Syntax Error : in statement() "  + getCurrentToken() );
+			return null;
+		}
+			
+		
+	}
+	IfStatement if_statement() {
+		Expression e;
+		StatementSequence s;
+		ElseClause elcl;
+		if( checkNextToken("IF") && (e = expression()) != null && checkNextToken("THEN") && ( s = statement_sequence())!= null && ( elcl = else_clause()) != null
+				&& checkNextToken("END")) {
+			return new IfStatement(e, s, elcl);
+		}
+		else {
+			System.err.println(" Syntax Error : in statement() "  + getCurrentToken() );
+			return null;
+		}
+		
+	}
+	
+	ElseClause else_clause() {
+		StatementSequence st;
+		if( checkNextToken("ELSE") && (st = statement_sequence()) != null ){
+			
+				return new ElseClause(st);
+			
+		}
+		//empty rule
+		else if( checkNextTokenNoUpdate("END")) {
+			 return new ElseClause();
+		}
+		else {
+			
+			System.err.println(" Syntax Error : in statement() "  + getCurrentToken() );
+			return null;
+		}
+	}
+	
+	Assignment assignment() {
+		if( checkNextToken("ident") && checkNextToken("ASGN")) {
+			if(checkNextToken("READINT")) {
+				return new Assignment(new String("READINT"));
+			}
+			else {
+				Expression e = expression();
+				return new Assignment(e);
+			}
+			
+		}
+		else {
+			System.err.println(" Syntax Error : in statement() "  + getCurrentToken() );
+			return null;
+		}
+		
 	}
 	
 	WriteInt writeInt() {

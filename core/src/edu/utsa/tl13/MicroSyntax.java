@@ -41,7 +41,7 @@ public class MicroSyntax {
 		opSymbols.put("<", "OP4");
 		opSymbols.put("<=", "OP4");
 		opSymbols.put("writeInt", "WRITEINT");
-		opSymbols.put("readInt", "readInt");
+		opSymbols.put("readInt", "READINT");
 	}
 	
 	public static Token isKeyWord( String word ) {
