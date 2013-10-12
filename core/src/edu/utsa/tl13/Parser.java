@@ -44,7 +44,7 @@ public class Parser {
 	public String parse() {
 		Program p;
 		if( (p = program()) == null) {
-			System.err.println("Program error");
+			System.err.println(" Program error");
 			return null;
 		}
 		
@@ -65,13 +65,13 @@ public class Parser {
 				}
 				else
 				{
-					System.err.println("Syntax Error: in program() " + getCurrentToken());
+					System.err.println(" Syntax Error: in program() " + getCurrentToken());
 					return null;
 				}
 			}
 			else
 			{
-				System.err.println("Syntax Error: in program() " + getCurrentToken());
+				System.err.println(" Syntax Error: in program() " + getCurrentToken());
 				return null;
 			}
 			
@@ -133,7 +133,7 @@ public class Parser {
 	StatementSequence statement_sequence() {
 		StatementSequence statements;
 		Statement s;
-		
+		// empty rule
 	    if( checkNextTokenNoUpdate("END") || checkNextTokenNoUpdate("ELSE")) {
 			return new StatementSequence();
 		}
@@ -142,7 +142,7 @@ public class Parser {
 			return statements;
 		}
 		else {
-			System.err.println(" Syntax Error : in stetement_sequence() "  + getCurrentToken() );
+			System.err.println(" Syntax Error : in stetement_sequence() "  + getCurrentToken().getWord() );
 			return null;
 		}
 		
@@ -167,6 +167,7 @@ public class Parser {
 			return null;
 		}
 	}
+	
 	WhileStatement while_statement() {
 		StatementSequence s;
 		Expression e;
@@ -180,6 +181,7 @@ public class Parser {
 			
 		
 	}
+	
 	IfStatement if_statement() {
 		Expression e;
 		StatementSequence s;
@@ -220,7 +222,13 @@ public class Parser {
 			}
 			else {
 				Expression e = expression();
-				return new Assignment(e);
+				if( e != null)
+					return new Assignment(e);
+				else {
+					System.err.println(" Syntax Error : in assignment() "  + getCurrentToken() );
+					return null;
+				}	
+				
 			}
 			
 		}
@@ -338,7 +346,12 @@ public class Parser {
 		}
 		else if( checkNextToken("LP")) {
 			Expression expr = expression();
-			return new Factor(expr);
+			if( (expr != null) && checkNextToken("RP"))
+				return new Factor(expr);
+			else {
+				System.err.println(" Syntax Error : in factor() "  + getCurrentToken() );
+				return null;
+			}
 		}
 		else {
 			System.err.println(" Syntax Error : in factor() "  + getCurrentToken() );

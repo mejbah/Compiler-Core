@@ -23,11 +23,11 @@ public class Compiler {
 	
 	Scanner scanner = new Scanner(inputFileName);
 	scanner.startScanner();
-/*
+
 	for( Token t : scanner.getTokenList() ) {
 		System.out.println(t);
 	}
-*/
+
 
 	Parser parser = new Parser(scanner.getTokenList());
 	String parseTree = parser.parse();
@@ -37,6 +37,9 @@ public class Compiler {
 	OutputStream parseOut = new FileOutputStream(parseOutName);
 	java.io.PrintStream ps = new java.io.PrintStream(parseOut);
 	ps.print(parseTree);
+	parseOut.close();
+	ps.close();
+	ps.close();
 
 /*****************************************************************************
 	
