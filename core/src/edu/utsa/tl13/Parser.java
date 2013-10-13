@@ -32,11 +32,16 @@ public class Parser {
 			return false;
 		
 	}
+	
 	Token getCurrentToken() {
 		if(symbol_cursor_pos > 0)
 			return tokens.get(symbol_cursor_pos - 1);
 		else
 			return tokens.get(symbol_cursor_pos);
+	}
+	
+	Token getToken( int pos ) {
+		return tokens.get(pos);
 	}
 	/*
 	 * returns text string describing parse tree
@@ -142,7 +147,7 @@ public class Parser {
 			return statements;
 		}
 		else {
-			System.err.println(" Syntax Error : in stetement_sequence() "  + getCurrentToken().getWord() );
+			System.err.println(" Syntax Error : in statement_sequence() "  + getCurrentToken().getWord() );
 			return null;
 		}
 		
@@ -171,7 +176,7 @@ public class Parser {
 	WhileStatement while_statement() {
 		StatementSequence s;
 		Expression e;
-		if( checkNextToken("WHILE") && (e = expression()) != null && checkNextToken("DO") && ( s = statement_sequence())!= null ) {
+		if( checkNextToken("WHILE") && (e = expression()) != null && checkNextToken("DO") && ( s = statement_sequence())!= null && checkNextToken("END") )  {
 			return new WhileStatement(e, s);
 		}
 		else {
@@ -216,14 +221,17 @@ public class Parser {
 	}
 	
 	Assignment assignment() {
+		Token id;
 		if( checkNextToken("ident") && checkNextToken("ASGN")) {
+			id = getToken(symbol_cursor_pos - 2); // get token for ident
+			
 			if(checkNextToken("READINT")) {
-				return new Assignment(new String("READINT"));
+				return new Assignment(new String("readInt"), id);
 			}
 			else {
 				Expression e = expression();
 				if( e != null)
-					return new Assignment(e);
+					return new Assignment(e, id);
 				else {
 					System.err.println(" Syntax Error : in assignment() "  + getCurrentToken() );
 					return null;
@@ -269,8 +277,16 @@ public class Parser {
 		if(checkNextTokenNoUpdate("THEN") | checkNextTokenNoUpdate("DO") | checkNextTokenNoUpdate("SC") | checkNextTokenNoUpdate("RP")) {
 			return new ExpressionPart();
 		}
-		else if( checkNextToken("OP4") && (sExpr = simple_expression())!=null) {
-			return new ExpressionPart(sExpr);
+		else if( checkNextToken("OP4")) {
+			Token op4 =  getToken(symbol_cursor_pos - 1); // as symbol pos increased in checkNextToken method
+			if((sExpr = simple_expression())!=null) {
+				return new ExpressionPart(sExpr, op4);
+			}
+			else {
+				System.err.println(" Syntax Error : in expression_part() "  + getCurrentToken() );
+				return null;
+			}
+			
 		}
 		else {
 			System.err.println(" Syntax Error : in expression_part() "  + getCurrentToken() );
@@ -300,8 +316,15 @@ public class Parser {
 				| checkNextTokenNoUpdate("OP4") | checkNextTokenNoUpdate("RP")) {
 			return new SimpleExpressionPart();
 		}
-		else if( checkNextToken("OP3") && (term = term())!= null) {
-			return new SimpleExpressionPart(term);
+		else if( checkNextToken("OP3")) {
+			Token op3 =  getToken(symbol_cursor_pos - 1); // as symbol pos increased in checkNextToken method
+			if((term = term())!= null) {
+				return new SimpleExpressionPart(term, op3);
+			}
+			else {
+				System.err.println(" Syntax Error : in simple_expression_part() "  + getCurrentToken() );
+				return null;
+			}
 		}
 		else {
 			System.err.println(" Syntax Error : in simple_expression_part() "  + getCurrentToken() );
@@ -330,11 +353,19 @@ public class Parser {
 				| checkNextTokenNoUpdate("OP3") | checkNextTokenNoUpdate("OP4") | checkNextTokenNoUpdate("RP")) {
 			return new TermPart();
 		}
-		else if( checkNextToken("OP2") && (f = factor())!= null) {
-			return new TermPart(f);
+		else if( checkNextToken("OP2") ) {
+			Token op =  getToken(symbol_cursor_pos - 1); // as symbol pos increased in checkNextToken method 
+			if ((f = factor())!= null) {
+				return new TermPart(f , op);
+			}
+			else {
+				System.err.println(" Syntax Error : in term_part() "  + getCurrentToken() );
+				return null;
+			}
+			
 		}
 		else {
-			System.err.println(" Syntax Error : in factor_part() "  + getCurrentToken() );
+			System.err.println(" Syntax Error : in term_part() "  + getCurrentToken() );
 			return null;
 		}
 		
@@ -342,7 +373,8 @@ public class Parser {
 	
 	Factor factor() {
 		if( checkNextToken("ident") | checkNextToken("num") | checkNextToken("boollit")) {
-			return new Factor();
+			Token facor_token =  getToken(symbol_cursor_pos - 1); // as symbol pos increased in checkNextToken method
+			return new Factor( facor_token );
 		}
 		else if( checkNextToken("LP")) {
 			Expression expr = expression();

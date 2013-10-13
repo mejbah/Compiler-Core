@@ -8,4 +8,7 @@ public interface Visitor {
 	public void visit(Statement s);
 	public void visit(Expression e);
 	public void visit(ElseClause el);
+	public void visit(SimpleExpression e);
+	public void visit(Term t);
+	public void visit(Factor t);
 }

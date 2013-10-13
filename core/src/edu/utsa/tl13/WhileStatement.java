@@ -9,5 +9,13 @@ public class WhileStatement extends Statement{
 		st = s;
 		
 	}
+	
+	Expression getExpression() {
+		return expr;
+	}
+	
+	StatementSequence getStatements() {
+		return st;
+	}
 
 }
