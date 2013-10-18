@@ -7,6 +7,8 @@ public class Parser {
 	ArrayList<Token> tokens;
 	int symbol_cursor_pos;
 	
+	String textForAST;
+	
 	public Parser( ArrayList<Token> tokens ) {
 		this.tokens = new ArrayList<Token>(tokens);
 		symbol_cursor_pos = 0;
@@ -60,12 +62,25 @@ public class Parser {
 		// root is the root of AST
 		ProgramNode root = createAST(p);
 		
+		if( root.typeOkay() ) {
+			System.out.println("Type ok");
+		}
+		else {
+			System.out.println("Type error");
+		}
+			
+		
 		ASTVisitor visitAST = new ASTVisitor();
 		root.accept(visitAST);
 		
+		textForAST = new String(visitAST.getTextToWrite());
 		//System.out.println(visitor.getTextToWrite());
-		//return visitor.getTextToWrite();
-		return visitAST.getTextToWrite();
+		return visitor.getTextToWrite();
+		//return visitAST.getTextToWrite();
+	}
+	
+	public String getTextForAST() {
+		return textForAST; 
 	}
 	
 	/**
@@ -120,14 +135,15 @@ public class Parser {
 			}
 			else if( s instanceof Assignment) {
 				String identNode = ((Assignment) s).getId().getWord();
+				String identType = ((Assignment) s).getId().getType();
 				if( ((Assignment) s).getReadInt() == null) { // not a readInt assignment
 					ExpressionNode expressionNode = getExpressionNode(((Assignment) s).getExpr());
 				
-					statementList.getStatementList().add(new AssignmentNode(identNode, expressionNode));
+					statementList.getStatementList().add(new AssignmentNode(identNode, identType,expressionNode));
 				}
 				else {
 					String readInt = ((Assignment) s).getReadInt();
-					statementList.getStatementList().add(new AssignmentNode(readInt, identNode));
+					statementList.getStatementList().add(new AssignmentNode(readInt, identType, identNode));
 					
 				}
 				

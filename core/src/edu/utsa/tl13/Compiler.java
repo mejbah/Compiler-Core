@@ -17,9 +17,11 @@ public class Compiler {
             throw new RuntimeException("inputFileName does not end in .tl13");
 
         String parseOutName = baseName + ".pt.dot";
+        String astOutName = baseName + ".ast.dot";
 
 	System.out.println("Input file: " + inputFileName);
 	System.out.println("Output file: " + parseOutName);
+	System.out.println("Output file: " + astOutName);
 	
 	Scanner scanner = new Scanner(inputFileName);
 	scanner.startScanner();
@@ -31,15 +33,25 @@ public class Compiler {
 */
 	Parser parser = new Parser(scanner.getTokenList());
 	String parseTree = parser.parse();
+	String asTree = parser.getTextForAST();
 	
-	
+	//System.out.println(astOutName);
 	// add code for writing output file
+	
+	OutputStream astOut = new FileOutputStream(astOutName);
+	java.io.PrintStream psAst = new java.io.PrintStream(astOut);
+	psAst.print(asTree);
+	astOut.close();
+	psAst.close();
+	
 	OutputStream parseOut = new FileOutputStream(parseOutName);
 	java.io.PrintStream ps = new java.io.PrintStream(parseOut);
 	ps.print(parseTree);
 	parseOut.close();
 	ps.close();
-	ps.close();
+	
+	
+	
 
 /*****************************************************************************
 	

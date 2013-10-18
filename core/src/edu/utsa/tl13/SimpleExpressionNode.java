@@ -4,8 +4,8 @@ public class SimpleExpressionNode implements Visitable {
 	TermNode lhs;
 	TermNode rhs;
 	OperandNode op;
-	
-	
+	String dataType;
+	boolean type_ok;
 
 	public SimpleExpressionNode(TermNode lhs, TermNode rhs, OperandNode op) {
 		this.lhs = lhs;
@@ -26,7 +26,10 @@ public class SimpleExpressionNode implements Visitable {
 	}
 
 
-
+	public String getDataType() {
+		return dataType;
+	}
+	
 	public TermNode getLhs() {
 		return lhs;
 	}
@@ -41,6 +44,27 @@ public class SimpleExpressionNode implements Visitable {
 
 	public OperandNode getOp() {
 		return op;
+	}
+	
+	public boolean typeOkay() {
+		if( this.rhs == null) {
+			this.dataType = this.lhs.getDataType();
+			return this.lhs.typeOkay();
+		}
+		else {
+			if(this.lhs.typeOkay() && this.rhs.typeOkay()) {
+				if(lhs.getDataType().equals(GlobalConstants.INT_TYPE) && rhs.getDataType().equals(GlobalConstants.INT_TYPE)){
+					this.dataType = GlobalConstants.INT_TYPE;
+					this.type_ok = true;
+				
+				}
+			}
+			else {
+				this.type_ok = false;
+			}
+			
+			return this.type_ok;
+		}
 	}
 	
 	

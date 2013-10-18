@@ -2,7 +2,7 @@ package edu.utsa.tl13;
 
 public class ASTVisitor implements Visitor {
 
-	String textToWrite = "digraph parseTree {" + "\nordering=out; \nnode [shape = box, style = filled];\n";
+	String textToWrite = "digraph asTree {" + "\nordering=out; \nnode [shape = box, style = filled];\n";
 	int nodeSerial = 0;
 	int currentParentNo = 0;
 	String labelText = "label=";

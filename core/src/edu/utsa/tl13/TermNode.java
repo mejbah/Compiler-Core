@@ -4,12 +4,14 @@ public class TermNode implements Visitable {
 	FactorNode lhs;
 	FactorNode rhs;
 	OperandNode op;
+	String dataType;
+	Boolean type_ok;
 	
 	public TermNode( FactorNode lhs, FactorNode rhs, OperandNode op ) {
 		this.lhs = lhs;
 		this.rhs = rhs;
 		this.op = op;
-	
+		this.dataType = null;	
 	}
 	
 	public TermNode( FactorNode lhs ) {
@@ -32,6 +34,32 @@ public class TermNode implements Visitable {
 
 	public OperandNode getOp() {
 		return op;
+	}
+	
+	public String getDataType() {
+		return dataType;
+	}
+	
+	public boolean typeOkay() {
+		if( this.rhs == null ) {
+			this.dataType =  this.lhs.getDataType();
+			return this.lhs.typeOkay();
+		}
+		else {
+			if(this.lhs.typeOkay() && this.rhs.typeOkay()) {
+				if(lhs.getDataType().equals(GlobalConstants.INT_TYPE) && rhs.getDataType().equals(GlobalConstants.INT_TYPE)){
+					this.dataType = GlobalConstants.INT_TYPE;
+					this.type_ok = true;
+				
+				}
+			}
+			else {
+				this.type_ok = false;
+			}
+			
+			return this.type_ok;
+				
+		}
 	}
 	
 	
