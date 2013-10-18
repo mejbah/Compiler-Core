@@ -1,6 +1,7 @@
 package edu.utsa.tl13;
 
 import java.util.ArrayList;
+import java.util.ListIterator;
 
 public class Parser {
 	ArrayList<Token> tokens;
@@ -56,9 +57,132 @@ public class Parser {
 		ParseTreeVisitor visitor = new ParseTreeVisitor();
 		p.accept(visitor);
 		
+		ProgramNode root = createAST(p);
+		
 		//System.out.println(visitor.getTextToWrite());
 		return visitor.getTextToWrite();
 	}
+	
+	/**
+	 * Receives parse tree root node program and constructs AST from Parse Tree
+	 * @return root of AST
+	 */
+	ProgramNode createAST( Program  p) {
+		
+		Declarations declarationList = new Declarations();	
+		ArrayList<DeclarationUnit>declarations = p.getDeclarations().getDeclarationList(); 
+		ListIterator<DeclarationUnit>li = declarations.listIterator( declarations.size());
+ 
+		while( li.hasPrevious() ) {
+			DeclarationUnit d = li.previous();
+			declarationList.addDeclaration(d);
+		}
+		
+		StatementListNode statementList = getStatementList(p.getStatements());
+		
+		return new ProgramNode(declarationList, statementList);
+			
+	}
+	
+	StatementListNode getStatementList( StatementSequence statements) {
+		
+		StatementListNode statementList = new StatementListNode();
+		ArrayList<Statement>stmt = statements.getStatements(); 
+		ListIterator<Statement>liStmt = stmt.listIterator( stmt.size());
+ 
+		while( liStmt.hasPrevious() ) {
+			Statement s = liStmt.previous();
+			if( s instanceof IfStatement ) {
+				//statementList.addStatement( new IfStatement(, st, el));
+				ExpressionNode expressionNode = getExpressionNode( ((IfStatement) s).getExpression()) ; // traverse expression subtree
+				StatementListNode ifStatements= getStatementList(((IfStatement) s).getStatements());
+				StatementListNode elseStatementSequence = getStatementList(((IfStatement) s).getElseClause().getStatements());
+				
+				statementList.getStatementList().add(new IfStatementNode(expressionNode, ifStatements, elseStatementSequence));
+				return statementList;
+			}
+			else if( s instanceof WhileStatement ) {
+				ExpressionNode expressionNode = getExpressionNode(((WhileStatement) s).getExpression());
+				StatementListNode whileStatements = getStatementList(((WhileStatement) s).getStatements());
+				
+				statementList.getStatementList().add(new WhileStatementNode(expressionNode, whileStatements));
+				return statementList;
+			}
+			else if( s instanceof Assignment) {
+				String identNode = ((Assignment) s).getId().getWord();
+				if( ((Assignment) s).getReadInt() == null) { // not a readInt assignment
+					ExpressionNode expressionNode = getExpressionNode(((Assignment) s).getExpr());
+				
+					statementList.getStatementList().add(new AssignmentNode(identNode, expressionNode));
+				}
+				else {
+					String readInt = ((Assignment) s).getReadInt();
+					statementList.getStatementList().add(new AssignmentNode(readInt, identNode));
+					
+				}
+				
+			}
+			else if( s instanceof WriteInt ) {
+				ExpressionNode expressionNode = getExpressionNode(((WriteInt) s).getExpr());
+				
+				statementList.getStatementList().add(new WriteIntNode(expressionNode));
+			}
+			else
+				return null;
+			
+				
+			
+		}
+		return statementList;
+
+	}
+	/**
+	 * 
+	 * @param expr
+	 * @return Expression tree for AST from corresponding Parse Tree
+	 */
+	
+	ExpressionNode getExpressionNode( Expression expr ) {
+		
+		if( expr.getExprPart().getSimpleExpression() == null) {
+			return new ExpressionNode( getSimpleExprNode(expr.getSimpleExpression()));
+		}
+		else {
+			OperandNode op = new OperandNode(expr.getExprPart().getOp().getWord(), expr.getExprPart().getOp().getType());
+			return new ExpressionNode( getSimpleExprNode(expr.getSimpleExpression()), getSimpleExprNode(expr.getExprPart().getSimpleExpression()), op);
+		}
+		
+	}
+	
+	SimpleExpressionNode getSimpleExprNode( SimpleExpression sExpr ) {
+		if( sExpr.getSExprPart().getTerm() == null) {
+			return new SimpleExpressionNode( getTermNode(sExpr.getTerm()));
+		}
+		else {
+			OperandNode op = new OperandNode(sExpr.getSExprPart().getOp().getWord(), sExpr.getSExprPart().getOp().getType());
+			return new SimpleExpressionNode(getTermNode(sExpr.getTerm()), getTermNode(sExpr.getSExprPart().getTerm()), op);
+		}
+	}
+	
+	TermNode getTermNode( Term t ) {
+		if( t.gettPart().getFactor() == null ) {
+			return new TermNode(getFactorNode( t.getFactor()));
+		}
+		else {
+			OperandNode op = new OperandNode(t.gettPart().getOp2().getWord(),t.gettPart().getOp2().getType() );
+			return new TermNode( getFactorNode(t.getFactor()), getFactorNode(t.gettPart().getFactor()), op); 
+		}
+	}
+	
+	FactorNode getFactorNode( Factor f ) {
+		if( f.getExpression() == null ) {
+			return new FactorNode( f.getToken().getWord());
+		}
+		else {
+			return new FactorNode(getExpressionNode(f.getExpression()));
+		}
+	}
+	
 	
 	Program program() {
 		if( checkNextToken("PROGRAM") ) {
