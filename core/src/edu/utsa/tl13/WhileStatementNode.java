@@ -10,8 +10,22 @@ public class WhileStatementNode extends StatementNode {
 			expr = e;
 			statements = s;
 			
+			
 		}
 
+
+		public ExpressionNode getExpr() {
+			return expr;
+		}
+
+
+		public StatementListNode getStatements() {
+			return statements;
+		}
+
+		public void accept( Visitor visitor ) {
+			visitor.visit(this);
+		}
 
 
 

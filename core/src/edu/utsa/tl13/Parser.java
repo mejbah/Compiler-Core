@@ -57,10 +57,15 @@ public class Parser {
 		ParseTreeVisitor visitor = new ParseTreeVisitor();
 		p.accept(visitor);
 		
+		// root is the root of AST
 		ProgramNode root = createAST(p);
 		
+		ASTVisitor visitAST = new ASTVisitor();
+		root.accept(visitAST);
+		
 		//System.out.println(visitor.getTextToWrite());
-		return visitor.getTextToWrite();
+		//return visitor.getTextToWrite();
+		return visitAST.getTextToWrite();
 	}
 	
 	/**
@@ -96,9 +101,14 @@ public class Parser {
 				//statementList.addStatement( new IfStatement(, st, el));
 				ExpressionNode expressionNode = getExpressionNode( ((IfStatement) s).getExpression()) ; // traverse expression subtree
 				StatementListNode ifStatements= getStatementList(((IfStatement) s).getStatements());
-				StatementListNode elseStatementSequence = getStatementList(((IfStatement) s).getElseClause().getStatements());
+				if( ((IfStatement) s).getElseClause() != null) {
+					StatementListNode elseStatementSequence = getStatementList(((IfStatement) s).getElseClause().getStatements());
 				
-				statementList.getStatementList().add(new IfStatementNode(expressionNode, ifStatements, elseStatementSequence));
+					statementList.getStatementList().add(new IfStatementNode(expressionNode, ifStatements, elseStatementSequence));
+				}
+				else {
+					statementList.getStatementList().add(new IfStatementNode(expressionNode, ifStatements));
+				}
 				return statementList;
 			}
 			else if( s instanceof WhileStatement ) {

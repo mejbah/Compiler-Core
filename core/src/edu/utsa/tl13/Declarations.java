@@ -34,5 +34,11 @@ public class Declarations implements Visitable {
 		visitor.visit(this);
 	}
 	
-	
+	public boolean typeOkay() {
+		if( hasError == false ) {
+			return true;
+			
+		}
+		else return false;
+	}
 }

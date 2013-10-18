@@ -1,6 +1,6 @@
 package edu.utsa.tl13;
 
-public class ExpressionNode {
+public class ExpressionNode implements Visitable {
 	SimpleExpressionNode lhs;
 	SimpleExpressionNode rhs;
 	OperandNode op;
@@ -17,6 +17,22 @@ public class ExpressionNode {
 		this.lhs = lhs;
 		this.rhs = rhs;
 		this.op = op;
+	}
+
+	public SimpleExpressionNode getLhs() {
+		return lhs;
+	}
+
+	public SimpleExpressionNode getRhs() {
+		return rhs;
+	}
+
+	public OperandNode getOp() {
+		return op;
+	}
+	
+	public void accept( Visitor visitor ) {
+		visitor.visit(this);
 	}
 
 }

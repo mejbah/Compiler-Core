@@ -9,4 +9,12 @@ public class WriteIntNode extends StatementNode {
 		this.expr = expr;
 	}
 
+	public ExpressionNode getExpr() {
+		return expr;
+	}
+	
+	public void accept( Visitor visitor ) {
+		visitor.visit(this);
+	}
+
 }

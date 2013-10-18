@@ -1,6 +1,6 @@
 package edu.utsa.tl13;
 
-public class FactorNode {
+public class FactorNode implements Visitable {
 	ExpressionNode expr;
 	String id;
 	
@@ -15,4 +15,17 @@ public class FactorNode {
 		this.id = id;
 	
 	}
+
+	public ExpressionNode getExpr() {
+		return expr;
+	}
+
+	public String getId() {
+		return id;
+	}
+	
+	public void accept( Visitor visitor ) {
+		visitor.visit(this);
+	}
+	
 }
