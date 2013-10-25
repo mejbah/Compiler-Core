@@ -43,8 +43,14 @@ public class ExpressionNode implements Visitable {
 	
 	public boolean typeOkay() {
 		if( this.rhs == null) {
-			this.dataType = this.lhs.getDataType();
-			return this.lhs.typeOkay();
+			if(this.lhs.typeOkay()) {
+				this.type_ok = true;
+				this.dataType = this.lhs.getDataType();
+			}
+			else {
+				this.type_ok = false;
+			}
+			return this.type_ok;
 		}
 		else {
 			if(this.lhs.typeOkay() && this.rhs.typeOkay()) {

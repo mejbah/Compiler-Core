@@ -154,17 +154,23 @@ public class ASTVisitor implements Visitor {
 		}
 		
 		else if(s instanceof AssignmentNode ) {
-			int child = addNewNode(" := ");
-			addEdge(parent, child);
 			
-			int child_1 = addNewNode(((AssignmentNode) s).getIdentNode());
-			addEdge(child, child_1);
 			
 			if( ((AssignmentNode) s).getReadInt() != null ) {
-				int child_2 = addNewNode(((AssignmentNode) s).getReadInt());
-				addEdge(child, child_2);
+				int child = addNewNode(" := ReadInt ");
+				addEdge(parent, child);
+				
+				int child_1 = addNewNode(((AssignmentNode) s).getIdentNode());
+				addEdge(child, child_1);
+			
 			}
 			else {
+				int child = addNewNode(" := ");
+				addEdge(parent, child);
+				
+				int child_1 = addNewNode(((AssignmentNode) s).getIdentNode());
+				addEdge(child, child_1);
+				
 				ExpressionNode expr = ((AssignmentNode) s).getExpr();
 				currentParentNo = child;
 				expr.accept(this);
@@ -217,7 +223,9 @@ public class ASTVisitor implements Visitor {
 		
 		if( ex.getRhs() == null ) {
 			SimpleExpressionNode simplExpr = ex.getLhs();
+			currentParentNo = parent;
 			simplExpr.accept(this);
+			parent = currentParentNo;
 		}
 		else {
 			
@@ -245,7 +253,9 @@ public class ASTVisitor implements Visitor {
 		
 		if( sex.getRhs() == null ) {
 			TermNode lhs = sex.getLhs();
+			
 			lhs.accept(this);
+			
 		}
 		else {
 			
@@ -271,8 +281,10 @@ public class ASTVisitor implements Visitor {
 		int parent = currentParentNo;
 		
 		if( tn.getRhs() == null ) {
+		
 			FactorNode lhs = tn.getLhs();
 			lhs.accept(this);
+		
 		}
 		else {
 			

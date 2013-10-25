@@ -41,6 +41,7 @@ public class WhileStatementNode extends StatementNode {
 						this.type_ok = true;
 					}
 				}
+				else this.type_ok = false;
 			}
 			
 			else {

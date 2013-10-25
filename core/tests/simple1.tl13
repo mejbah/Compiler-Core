@@ -1,15 +1,22 @@
-program 
-   var N as int ; 
-   var I as int ; 
-begin 
-   N := readInt ; 
+% sqrt.tl13
+% This is a program that approximates a sqrt to the smallest
+% integer less than the square root by trying each possible sqrt
+% until it finds one that is too large
 
-   I := 2 ; 
-   while I <= N do 
-      while N mod I = 0 do 
-         N := N div I ; 
-         writeInt I ; 
-      end ; 
-      I := I + 1 ; 
-   end ; 
+program 
+  var N as int ; 
+  var SQRT as int ; 
+begin 
+  N := readInt ; 
+  SQRT := 0 ; 
+
+  % go until SQRT exceeds the square root of N
+  while SQRT * SQRT <= N do 
+    SQRT := SQRT + 1 ; 
+  end ; 
+
+  SQRT := SQRT - 1 ; % subtract one SQRT is <= sqrt(N)
+
+  writeInt SQRT ; 
+
 end 

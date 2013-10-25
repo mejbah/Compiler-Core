@@ -124,14 +124,14 @@ public class Parser {
 				else {
 					statementList.getStatementList().add(new IfStatementNode(expressionNode, ifStatements));
 				}
-				return statementList;
+
 			}
 			else if( s instanceof WhileStatement ) {
 				ExpressionNode expressionNode = getExpressionNode(((WhileStatement) s).getExpression());
 				StatementListNode whileStatements = getStatementList(((WhileStatement) s).getStatements());
 				
 				statementList.getStatementList().add(new WhileStatementNode(expressionNode, whileStatements));
-				return statementList;
+				
 			}
 			else if( s instanceof Assignment) {
 				String identNode = ((Assignment) s).getId().getWord();
@@ -202,7 +202,7 @@ public class Parser {
 	
 	FactorNode getFactorNode( Factor f ) {
 		if( f.getExpression() == null ) {
-			return new FactorNode( f.getToken().getWord());
+			return new FactorNode( f.getToken().getWord(), f.getToken().getType());
 		}
 		else {
 			return new FactorNode(getExpressionNode(f.getExpression()));

@@ -38,19 +38,34 @@ public class AssignmentNode extends StatementNode implements Visitable {
 	}
 	
 	public boolean typeOkay() {
-		if( (this.identType == GlobalConstants.BOOL_TYPE) || (this.identType == GlobalConstants.INT_TYPE) ) {
-			// left has to var type
+		if(this.identType == GlobalConstants.IDENT ) {
+			// left side of assignment has to be "ident" type
 			if( this.expr != null ) {
-				this.type_ok = expr.typeOkay();
+			// assignment
+				if(expr.typeOkay()) {
+					// ident type == expr type
+					String id_dataType = SymbolTable.getInstance().getType(this.identNode);
+					if(id_dataType.equals(this.expr.getDataType())) {
+						this.type_ok = true;
+					}
+					else {
+						this.type_ok = false;
+					}
+				}
+				else
+					this.type_ok = false;
 			}
+			// readInt
 			else {
 				this.type_ok = true;
 			}
 			
-			return type_ok;
+			
 		}
-		else
-			return false;
+		else {
+			this.type_ok = false;
+		}
+		return this.type_ok;
 	}
 	 
 }

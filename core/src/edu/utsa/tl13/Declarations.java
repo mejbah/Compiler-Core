@@ -19,11 +19,11 @@ public class Declarations implements Visitable {
 	
 	public void addDeclaration( DeclarationUnit d ) {
 		declarations.add(d);
-		SymbolTable st = SymbolTable.getInstance();
-		if(st.isRedeclrations(d.getIdent()) ) {
-			hasError = true;
-		}
-		st.addSymbolInfo(d.ident, d.id_type);
+//		SymbolTable st = SymbolTable.getInstance();
+//		if(st.isRedeclrations(d.getIdent()) ) {
+//			hasError = true;
+//		}
+//		st.addSymbolInfo(d.getIdent(), d.getIdType());
 	}
 	
 	public ArrayList<DeclarationUnit> getDeclarationList() {
@@ -35,6 +35,14 @@ public class Declarations implements Visitable {
 	}
 	
 	public boolean typeOkay() {
+		
+		for( DeclarationUnit d : this.declarations ) {
+			SymbolTable st = SymbolTable.getInstance();
+			if(st.isRedeclrations(d.getIdent()) ) {
+				hasError = true;
+			}
+			st.addSymbolInfo(d.getIdent(), d.getIdType());
+		}
 		if( hasError == false ) {
 			return true;
 			

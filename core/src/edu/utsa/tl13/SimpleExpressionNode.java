@@ -48,8 +48,14 @@ public class SimpleExpressionNode implements Visitable {
 	
 	public boolean typeOkay() {
 		if( this.rhs == null) {
-			this.dataType = this.lhs.getDataType();
-			return this.lhs.typeOkay();
+			if( this.lhs.typeOkay() ) {
+				this.dataType = this.lhs.getDataType();
+				this.type_ok = true;
+			}
+			else {
+				this.type_ok = false;
+			}
+			return this.type_ok;
 		}
 		else {
 			if(this.lhs.typeOkay() && this.rhs.typeOkay()) {
