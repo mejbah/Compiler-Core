@@ -68,7 +68,10 @@ public class Parser {
 		else {
 			System.out.println("Type error");
 		}
-			
+		/**
+		 * TODO: get rid of this dependence
+		 * root.typeokay() must be called before ASTVisitor();	
+		 */
 		
 		ASTVisitor visitAST = new ASTVisitor();
 		root.accept(visitAST);
@@ -143,7 +146,7 @@ public class Parser {
 				}
 				else {
 					String readInt = ((Assignment) s).getReadInt();
-					statementList.getStatementList().add(new AssignmentNode(readInt, identType, identNode));
+					statementList.getStatementList().add(new AssignmentNode(identNode, identType, readInt ));
 					
 				}
 				

@@ -16,6 +16,20 @@ public class ASTVisitor implements Visitor {
 		
 		return nodeSerial;
 	}
+	/**
+	 * 
+	 * @param label : String containing label text 
+	 * @param color : String containing color info ( Select one from Global Constants)
+	 * @return
+	 */
+	int addNewNode( String label, String color ) {
+		nodeSerial++;
+		String node = "n" + nodeSerial + " ["  + labelText + "\"" + label + "\"" + color + shapeText + " ]" +"\n";
+		textToWrite = textToWrite + node;
+		
+		return nodeSerial;
+	}
+	
 	public String getTextToWrite() {
 		textToWrite = textToWrite + "\n }";
 		return textToWrite;
@@ -36,9 +50,9 @@ public class ASTVisitor implements Visitor {
 	public void visit(Declarations ds) {
 		int parent = currentParentNo;
 		for( DeclarationUnit d : ds.getDeclarationList()) {
-			int child_1 = addNewNode("decl: " + d.getIdent());
+			int child_1 = addNewNode("decl: " + d.getIdent(), GlobalConstants.COLOR_TEXT_IDENT);
 			addEdge(parent , child_1);
-			int type = addNewNode(d.getIdType());
+			int type = addNewNode(d.getIdType(), GlobalConstants.COLOR_TEXT_TYPE);
 			addEdge(child_1, type);
 		}
 		
@@ -92,27 +106,35 @@ public class ASTVisitor implements Visitor {
 		
 	}
 
+	String getNodeColor( boolean type_okay ) {
+		return type_okay  ? GlobalConstants.COLOR_TEXT_NO_ERROR : GlobalConstants.COLOR_TEXT_ERROR;
+	}
+	
 	@Override
 	public void visit(ProgramNode p) {
-		int parent = addNewNode(new String("program"));
+		
+		int parent = addNewNode(new String("program"),  getNodeColor(p.type_ok));
         
 		if(!p.getDeclarationList().getDeclarationList().isEmpty()) {
 			//declarations is not empty
 			currentParentNo = parent;
-	        int child_1 = addNewNode( new String("decl list"));
+			Declarations ds = p.getDeclarationList();
+	        
+			int child_1 = addNewNode( new String("decl list"), getNodeColor(!ds.hasError));
 	        addEdge(currentParentNo , child_1);
 	        
-	        Declarations ds = p.getDeclarationList();
+	        
 	        currentParentNo = child_1;
 	        ds.accept(this);
 	        currentParentNo = parent;
 	        
 			
 		}
+		StatementListNode stmtList = p.getStatementList();
 		
-        int child_2 = addNewNode(new String("stmt list"));
+        int child_2 = addNewNode(new String("stmt list"), getNodeColor(stmtList.type_ok));
         addEdge(currentParentNo , child_2);
-        StatementListNode stmtList = p.getStatementList();
+        
         currentParentNo = child_2;
         stmtList.accept(this);
 		
@@ -132,7 +154,7 @@ public class ASTVisitor implements Visitor {
 		int parent = currentParentNo;
 		
 		if( s instanceof IfStatementNode ) {
-			int child = addNewNode("If");
+			int child = addNewNode("If", getNodeColor(((IfStatementNode) s).type_ok));
 			addEdge(parent, child);
 			
 			currentParentNo = child;
@@ -144,11 +166,14 @@ public class ASTVisitor implements Visitor {
 		    ifstmts.accept(this);
 			
 		    if(((IfStatementNode) s).getElseStatements() != null) {
-		    	int child_1 = addNewNode("stmt list");
+		    	StatementListNode elsestmts = ((IfStatementNode) s).getElseStatements();
+		    	
+		    	int child_1 = addNewNode("stmt list", getNodeColor(elsestmts.type_ok));
+		    	
 		    	addEdge(child , child_1);
 		    	
 		    	currentParentNo = child_1;
-		    	StatementListNode elsestmts = ((IfStatementNode) s).getElseStatements();
+		    	
 		    	elsestmts.accept(this);
 		    }
 		}
@@ -157,18 +182,18 @@ public class ASTVisitor implements Visitor {
 			
 			
 			if( ((AssignmentNode) s).getReadInt() != null ) {
-				int child = addNewNode(" := ReadInt ");
+				int child = addNewNode(" := readInt ", getNodeColor(((AssignmentNode) s).type_ok));
 				addEdge(parent, child);
 				
-				int child_1 = addNewNode(((AssignmentNode) s).getIdentNode());
+				int child_1 = addNewNode(((AssignmentNode) s).getIdentNode(), GlobalConstants.COLOR_TEXT_IDENT);
 				addEdge(child, child_1);
 			
 			}
 			else {
-				int child = addNewNode(" := ");
+				int child = addNewNode(" := ", getNodeColor(((AssignmentNode) s).type_ok));
 				addEdge(parent, child);
 				
-				int child_1 = addNewNode(((AssignmentNode) s).getIdentNode());
+				int child_1 = addNewNode(((AssignmentNode) s).getIdentNode(), GlobalConstants.COLOR_TEXT_IDENT);
 				addEdge(child, child_1);
 				
 				ExpressionNode expr = ((AssignmentNode) s).getExpr();
@@ -180,7 +205,7 @@ public class ASTVisitor implements Visitor {
 		}
 		
 		else if(s instanceof WhileStatementNode ) {
-			int child = addNewNode(" While ");
+			int child = addNewNode(" While ", getNodeColor(((WhileStatementNode) s).type_ok));
 			addEdge(parent, child);
 			
 			ExpressionNode expr = ((WhileStatementNode) s).getExpr();
@@ -191,7 +216,7 @@ public class ASTVisitor implements Visitor {
 			if(! ((WhileStatementNode) s).getStatements().getStatementList().isEmpty() ) {
 				
 				StatementListNode stmts = ((WhileStatementNode) s).getStatements();
-				int child_1 = addNewNode("stmt list");
+				int child_1 = addNewNode("stmt list", getNodeColor(stmts.type_ok));
 		    	addEdge(child , child_1);
 		    	
 		    	currentParentNo = child_1;
@@ -201,7 +226,7 @@ public class ASTVisitor implements Visitor {
 		}
 		
 		else if( s instanceof WriteIntNode ) {
-			int child = addNewNode(" WriteInt ");
+			int child = addNewNode(" WriteInt ", getNodeColor(((WriteIntNode) s).type_ok));
 			addEdge(parent, child);
 			
 			ExpressionNode expr = ((WriteIntNode) s).getExpr();
@@ -229,7 +254,7 @@ public class ASTVisitor implements Visitor {
 		}
 		else {
 			
-			int child = addNewNode(ex.getOp().op); // add operand of expression as node
+			int child = addNewNode(ex.getOp().op, getNodeColor(ex.type_ok)); // add operand of expression as node
 			addEdge(parent, child);
 			
 			currentParentNo = child;
@@ -259,7 +284,7 @@ public class ASTVisitor implements Visitor {
 		}
 		else {
 			
-			int child = addNewNode(sex.getOp().op); // add operand of expression as node
+			int child = addNewNode(sex.getOp().op, getNodeColor(sex.type_ok)); // add operand of expression as node
 			addEdge(parent, child);
 			
 			currentParentNo = child;
@@ -288,7 +313,7 @@ public class ASTVisitor implements Visitor {
 		}
 		else {
 			
-			int child = addNewNode(tn.getOp().op); // add operand of expression as node
+			int child = addNewNode(tn.getOp().op, getNodeColor(tn.type_ok)); // add operand of expression as node
 			addEdge(parent, child);
 			
 			currentParentNo = child;
@@ -309,7 +334,7 @@ public class ASTVisitor implements Visitor {
 		int parent = currentParentNo;
 		
 		if( f.getExpr() == null ) {
-			int child = addNewNode(f.getId());
+			int child = addNewNode(f.getId(), GlobalConstants.COLOR_TEXT_IDENT);
 			addEdge(parent, child);
 		}
 		else {

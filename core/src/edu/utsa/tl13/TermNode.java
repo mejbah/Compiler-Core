@@ -57,6 +57,9 @@ public class TermNode implements Visitable {
 					this.type_ok = true;
 				
 				}
+				else {
+					this.type_ok =  false;
+				}
 			}
 			else {
 				this.type_ok = false;

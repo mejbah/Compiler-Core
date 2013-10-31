@@ -57,7 +57,13 @@ public class AssignmentNode extends StatementNode implements Visitable {
 			}
 			// readInt
 			else {
-				this.type_ok = true;
+				String id_dataType = SymbolTable.getInstance().getType(this.identNode);
+				if(id_dataType.equals(GlobalConstants.INT_TYPE)) {
+					this.type_ok = true;
+				}
+				else {
+					this.type_ok = false;
+				}
 			}
 			
 			
