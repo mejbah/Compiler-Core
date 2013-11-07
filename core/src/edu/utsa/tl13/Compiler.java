@@ -18,11 +18,11 @@ public class Compiler {
 
         String parseOutName = baseName + ".pt.dot";
         String astOutName = baseName + ".ast.dot";
-
+        String cfgOutName = baseName + ".iloc.cfg.dot";
 	System.out.println("Input file: " + inputFileName);
 	System.out.println("Output file: " + parseOutName);
 	System.out.println("Output file: " + astOutName);
-	
+	System.out.println("Output file: " + cfgOutName);
 	Scanner scanner = new Scanner(inputFileName);
 	scanner.startScanner();
 /*
@@ -34,6 +34,7 @@ public class Compiler {
 	Parser parser = new Parser(scanner.getTokenList());
 	String parseTree = parser.parse();
 	String asTree = parser.getTextForAST();
+	String cfgTree = parser.getTextForCFG();
 	
 	//System.out.println(astOutName);
 	// add code for writing output file
@@ -50,34 +51,11 @@ public class Compiler {
 	parseOut.close();
 	ps.close();
 	
-	
-	
-
-/*****************************************************************************
-	
-    FileReader tl12In = new FileReader(inputFileName);
-	OutputStream parseOut = new FileOutputStream(parseOutName);
-	
-	//Parser parser = new Parser(tl12In, parseOut);
-	//parser.program();
-
-	// Remove code below:
-	java.io.LineNumberReader lr = new java.io.LineNumberReader(tl12In);
-	java.io.PrintStream ps = new java.io.PrintStream(parseOut);
-	ps.println("[valid dot file produced by parser]");
-	ps.println("Input contained: ");
-	int num = lr.getLineNumber();
-	String line = lr.readLine();
-	while (line != null) {
-	  ps.print(num + ": ");
-	  for(String s : line.split("\\s+"))
-		  ps.print("\"" + s + "\" - ");
-	  ps.println();
-	  num = lr.getLineNumber();
-	  line = lr.readLine();
-	}	
-	lr.close();
-	ps.close();
- ********************************************************************************/ 
+	OutputStream cfgOut = new FileOutputStream(cfgOutName);
+	java.io.PrintStream psCfg = new java.io.PrintStream(cfgOut);
+	psCfg.print(cfgTree);
+	cfgOut.close();
+	psCfg.close();
  }
+    
 }

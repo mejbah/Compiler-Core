@@ -8,6 +8,20 @@ public class GlobalConstants {
 	public static final String COLOR_TEXT_NO_ERROR = ",fillcolor=\"/pastel13/3\"";
 	public static final String COLOR_TEXT_IDENT = ",fillcolor=\"/pastel13/2\"";
 	public static final String COLOR_TEXT_TYPE = ",fillcolor=\"/x11/lightgrey\"";
+	// instructions opcode
+	public static final String OPCODE_ADD = "add";
+	public static final String OPCODE_SUB = "sub";
+	public static final String OPCODE_MULT = "mult";
+	public static final String OPCODE_DIV = "div";
+	public static final String OPCODE_LT = "cmp_LT";
+	public static final String OPCODE_LOADI = "loadI";
+	public static final String OPCODE_LE = "cmp_LE";
+	public static final String OPCODE_GT = "cmp_GT";
+	public static final String OPCODE_GE = "cmp_GE";
+	public static final String OPCODE_JUMPI = "jumpI";
+	public static final String OPCODE_CBR = "cbr";
+	public static final String OPCODE_READINT = "readInt";
+	public static final String OPCODE_WRITEINT = "writeInt";
 }
 
 

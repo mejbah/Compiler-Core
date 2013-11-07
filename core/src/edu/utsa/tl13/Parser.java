@@ -8,6 +8,7 @@ public class Parser {
 	int symbol_cursor_pos;
 	
 	String textForAST;
+	String textForCFG;
 	
 	public Parser( ArrayList<Token> tokens ) {
 		this.tokens = new ArrayList<Token>(tokens);
@@ -58,7 +59,9 @@ public class Parser {
 		
 		ParseTreeVisitor visitor = new ParseTreeVisitor();
 		p.accept(visitor);
-		
+/**
+ * Build AST 		
+ */
 		// root is the root of AST
 		ProgramNode root = createAST(p);
 		
@@ -72,18 +75,36 @@ public class Parser {
 		 * TODO: get rid of this dependence
 		 * root.typeokay() must be called before ASTVisitor();	
 		 */
-		
+/**
+ * Draw ast with typechecking		
+ */
 		ASTVisitor visitAST = new ASTVisitor();
 		root.accept(visitAST);
 		
 		textForAST = new String(visitAST.getTextToWrite());
 		//System.out.println(visitor.getTextToWrite());
+
+/**
+* Draw CFG		
+*/
+		CfgVisitor visitCFG = new CfgVisitor();
+		root.accept(visitCFG);
+				
+		textForCFG = new String(visitCFG.getTextToWrite());
+		//System.out.println(textForCFG);
+
+		
+		// return parse tree text
 		return visitor.getTextToWrite();
-		//return visitAST.getTextToWrite();
+		
 	}
 	
 	public String getTextForAST() {
 		return textForAST; 
+	}
+	
+	public String getTextForCFG() {
+		return textForCFG; 
 	}
 	
 	/**
