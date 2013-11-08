@@ -5,7 +5,7 @@ public class ILOCsingleton {
 	private int register_no_cursor;
 	private int block_no_cursor;
 	private ILOCsingleton() {
-		register_no_cursor = 0;
+		register_no_cursor = -1;
 		block_no_cursor = 0;
 	}
 	
@@ -24,7 +24,8 @@ public class ILOCsingleton {
 	}
 	
 	String getNewBlock() {
-		return new String("B" + block_no_cursor++);
+		block_no_cursor++;
+		return new String("B" + block_no_cursor);
 	}
 	
 

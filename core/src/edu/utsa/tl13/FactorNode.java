@@ -3,7 +3,7 @@ package edu.utsa.tl13;
 public class FactorNode implements Visitable {
 	ExpressionNode expr;
 	String id;
-	String id_type;
+	String id_type; // num or boollit or ident
 	boolean type_ok;
 	String dataType;
 	
@@ -37,6 +37,10 @@ public class FactorNode implements Visitable {
 	
 	public String getDataType() {
 		return dataType;
+	}
+	
+	public String getId_Type() {
+		return id_type;
 	}
 
 	public boolean typeOkay() {

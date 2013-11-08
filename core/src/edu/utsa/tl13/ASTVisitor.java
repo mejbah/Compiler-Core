@@ -142,7 +142,6 @@ public class ASTVisitor implements Visitor {
 
 	@Override
 	public void visit(StatementListNode s) {
-		// TODO Auto-generated method stub
 		
 		for( StatementNode stmt : s.getStatementList() ) {
 			stmt.accept(this);

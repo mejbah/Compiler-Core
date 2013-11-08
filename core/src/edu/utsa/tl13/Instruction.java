@@ -72,8 +72,11 @@ public class Instruction {
 		else if( opcode.equals(GlobalConstants.OPCODE_DIV)){
 			source = new String("div " + this.src1 +","+ this.src2 + " =&gt; " + this.dest );
 		}
+		else if( opcode.equals(GlobalConstants.OPCODE_MOD)){
+			source = new String("div " + this.src1 +","+ this.src2 + " =&gt; " + this.dest );
+		}
 		else if( opcode.equals(GlobalConstants.OPCODE_LOADI)){
-			source = new String("load " + this.src1 +" =&gt; " + this.dest );
+			source = new String("loadI " + this.src1 +" =&gt; " + this.dest );
 		}
 		else if( opcode.equals(GlobalConstants.OPCODE_LT)){
 			source = new String("cmp_LT " + this.src1 +","+ this.src2 +" =&gt; " + this.dest );
@@ -87,11 +90,26 @@ public class Instruction {
 		else if( opcode.equals(GlobalConstants.OPCODE_GE)){
 			source = new String("cmp_GE " + this.src1 +","+ this.src2 +" =&gt; " + this.dest );
 		}
+		else if( opcode.equals(GlobalConstants.OPCODE_CMPEQ)){
+			source = new String("cmp_EQ " + this.src1 +","+ this.src2 +" =&gt; " + this.dest );
+		}
+		else if( opcode.equals(GlobalConstants.OPCODE_CMPNE)){
+			source = new String("cmp_NE " + this.src1 +","+ this.src2 +" =&gt; " + this.dest );
+		}
 		else if( opcode.equals(GlobalConstants.OPCODE_CBR)){ // in case of cbr src2 to the 1st branch destination
-			source = new String("cbr " + this.src1 + " -> " + this.src2 + "," + this.dest);
+			source = new String("cbr " + this.src1 + " -&gt; " + this.src2 + "," + this.dest);
 		}
 		else if( opcode.equals(GlobalConstants.OPCODE_JUMPI)){ // both source are null
-			source = new String("jumpI" + " -> " + this.dest );
+			source = new String("jumpI" + " -&gt; " + this.dest );
+		}
+		else if( opcode.equals(GlobalConstants.OPCODE_READINT)){ // both source are null
+			source = new String("readInt" + " =&gt; " + this.dest );
+		}
+		else if( opcode.equals(GlobalConstants.OPCODE_WRITEINT)){ // both source are null
+			source = new String("writeInt" + " " + this.src1 );
+		}
+		else if( opcode.equals(GlobalConstants.OPCODE_I2I)){ // both source are null
+			source = new String("i2i " + this.src1 +  " =&gt; " + this.dest );
 		}
 		else {
 			System.out.println("ERROR in ILOC Opcode for Instruction");
