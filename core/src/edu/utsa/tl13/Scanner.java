@@ -45,7 +45,7 @@ public class Scanner {
 		
 		 for( int i=0; i<words.length; i++)
 		 {
-			if( words[i].equals("%")) return; // skip line after % as comment line  
+			if( words[i].startsWith("%")) return; // skip line after % as comment line  
 			 //check valid tokens
 			Token token = MicroSyntax.getValidToken(words[i]);
 			if(token != null) {
