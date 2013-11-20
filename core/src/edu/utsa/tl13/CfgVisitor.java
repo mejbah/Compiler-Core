@@ -227,10 +227,13 @@ public class CfgVisitor implements Visitor {
 		    
 		    
 		    addEdge(parentNodeNo, nodeSerial);
+		    
 		    //create new block for else statments
-			createNewNode(elseblock);
-			int child2 = nodeSerial; //node no for else block
-			((IfStatementNode) s).getElseStatements().accept(this);
+		    createNewNode(elseblock);
+		    int child2 = nodeSerial; //node no for else block
+		    if(((IfStatementNode) s).getElseStatements() != null) {
+		    	((IfStatementNode) s).getElseStatements().accept(this);
+		    }
 			//jmp to exit block
 			addInsructionText(new Instruction(opcode, null, null, exitblock).getSourceCode());
 			closeTextCurrentNode();

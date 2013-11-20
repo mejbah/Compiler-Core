@@ -140,7 +140,7 @@ public class Parser {
 				//statementList.addStatement( new IfStatement(, st, el));
 				ExpressionNode expressionNode = getExpressionNode( ((IfStatement) s).getExpression()) ; // traverse expression subtree
 				StatementListNode ifStatements= getStatementList(((IfStatement) s).getStatements());
-				if( ((IfStatement) s).getElseClause() != null) {
+				if( ((IfStatement) s).getElseClause().getStatements()!= null) {
 					StatementListNode elseStatementSequence = getStatementList(((IfStatement) s).getElseClause().getStatements());
 				
 					statementList.getStatementList().add(new IfStatementNode(expressionNode, ifStatements, elseStatementSequence));
