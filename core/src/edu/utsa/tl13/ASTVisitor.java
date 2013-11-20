@@ -312,7 +312,7 @@ public class ASTVisitor implements Visitor {
 		}
 		else {
 			
-			int child = addNewNode(tn.getOp().op, getNodeColor(tn.type_ok)); // add operand of expression as node
+			int child = addNewNode(tn.getOp().op, getNodeColor(tn.typeOkay())); // add operand of expression as node
 			addEdge(parent, child);
 			
 			currentParentNo = child;
