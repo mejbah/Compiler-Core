@@ -26,6 +26,8 @@ public class GlobalConstants {
 	public static final String OPCODE_READINT = "readInt";
 	public static final String OPCODE_WRITEINT = "writeInt";
 	public static final String OPCODE_I2I = "i2i";
+	public static final String OPCODE_LABEL = "label";
+	public static final String OPCODE_EXIT = "exitCommand";
 }
 
 

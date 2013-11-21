@@ -92,7 +92,7 @@ public class Parser {
 				
 		textForCFG = new String(visitCFG.getTextToWrite());
 		//System.out.println(textForCFG);
-
+        
 		
 		// return parse tree text
 		return visitor.getTextToWrite();

@@ -27,6 +27,11 @@ public class CfgVisitor implements Visitor {
 	// closeTextCurrentNode must call before createNewNode where nodeSerial increments
 	public void createNewNode( String blockName ) {
 		
+		//added for creating instruction list
+		Instruction inst = new Instruction(GlobalConstants.OPCODE_LABEL, blockName, null, null);
+		ILOCsingleton.getInstance().getIlocInstructionList().add(inst);
+		
+		
 		textToWrite = textToWrite + "\nn"+ nodeSerial + " [label=<<table border=\"0\">";
 		
 		String blockText = "<tr><td border=\"1\" colspan=\"3\">" + blockName + "</td></tr>";

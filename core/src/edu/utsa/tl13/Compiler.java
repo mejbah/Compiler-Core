@@ -19,10 +19,12 @@ public class Compiler {
         String parseOutName = baseName + ".pt.dot";
         String astOutName = baseName + ".ast.dot";
         String cfgOutName = baseName + ".iloc.cfg.dot";
+        String mipsOutName = baseName + ".s";
 	System.out.println("Input file: " + inputFileName);
 	System.out.println("Output file: " + parseOutName);
 	System.out.println("Output file: " + astOutName);
 	System.out.println("Output file: " + cfgOutName);
+	System.out.println("Output file: " + mipsOutName);
 	Scanner scanner = new Scanner(inputFileName);
 	scanner.startScanner();
 /*
@@ -36,7 +38,31 @@ public class Compiler {
 	String asTree = parser.getTextForAST();
 	String cfgTree = parser.getTextForCFG();
 	
+//	for( Instruction inst : ILOCsingleton.getInstance().getIlocInstructionList()) {
+//    	System.out.println(inst.getInstructionSourceText());
+//    }
+	//System.out.println(ILOCsingleton.getInstance().getIlocInstructionList().size());
 	//System.out.println(astOutName);
+	
+	
+	/*** generate mips code***/
+	MipsGenerator mips = new MipsGenerator();
+//	System.out.println(mips.getSourceCodeText());
+//	Instruction inst;
+//	for( int i=0; i<20; i++){
+//		inst = ILOCsingleton.getInstance().getIlocInstructionList().get(i);
+//		mips.addMipsForILOC(inst);
+//    }
+	for( Instruction inst : ILOCsingleton.getInstance().getIlocInstructionList()) {
+		mips.addMipsForILOC(inst);
+	}
+	mips.addMipsForILOC(new Instruction(GlobalConstants.OPCODE_EXIT, null, null, null));
+	//System.out.println(mips.getSourceCodeText());
+	String mipsText = mips.getSourceCodeText();
+	/****end*********/
+	
+	
+	
 	// add code for writing output file
 	
 	OutputStream astOut = new FileOutputStream(astOutName);
@@ -56,6 +82,12 @@ public class Compiler {
 	psCfg.print(cfgTree);
 	cfgOut.close();
 	psCfg.close();
+	
+	OutputStream mipsOut = new FileOutputStream(mipsOutName);
+	java.io.PrintStream psMips = new java.io.PrintStream(mipsOut);
+	psMips.print(mipsText);
+	mipsOut.close();
+	psMips.close();
  }
     
 }

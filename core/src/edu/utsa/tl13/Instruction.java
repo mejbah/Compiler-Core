@@ -7,6 +7,7 @@ public class Instruction {
 	private String src2;
 	private String dest;
 	private String sourceCode;
+	boolean isLabel; // if it is a label for jump, src1 contains the label string
 	
 	public Instruction(String opcode, String src1, String src2, String dest) {
 		super();
@@ -14,6 +15,7 @@ public class Instruction {
 		this.src1 = src1;
 		this.src2 = src2;
 		this.dest = dest;
+		this.isLabel = false;
 		this.sourceCode = getSourceCode(opcode);
 	}
 
@@ -50,6 +52,12 @@ public class Instruction {
 	}
 
 	public String getSourceCode() {
+		//add instruction in ILOC instruction list : bad bad / hacking
+		ILOCsingleton.getInstance().getIlocInstructionList().add(this);
+		return sourceCode;
+	}
+	public String getInstructionSourceText() {
+		//adding another function for debugging
 		return sourceCode;
 	}
 
@@ -110,6 +118,14 @@ public class Instruction {
 		}
 		else if( opcode.equals(GlobalConstants.OPCODE_I2I)){ // both source are null
 			source = new String("i2i " + this.src1 +  " =&gt; " + this.dest );
+		}
+		else if(opcode.equals(GlobalConstants.OPCODE_LABEL)) { // not an instruction but a label
+			source = new String(this.src1 + ":");
+			this.isLabel = true;
+		}
+		else if(opcode.equals(GlobalConstants.OPCODE_EXIT)) { // not an instruction but a label
+			source = new String("exit");
+		
 		}
 		else {
 			System.out.println("ERROR in ILOC Opcode for Instruction");
