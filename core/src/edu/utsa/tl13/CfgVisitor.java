@@ -262,7 +262,7 @@ public class CfgVisitor implements Visitor {
 			closeTextCurrentNode();
 			addEdge(parentNodeNo, nodeSerial);
 			
-			// create new block for If expression
+			// create new block for while expression
 			createNewNode(blockName);
 			
 			//evaluate expr
@@ -292,7 +292,8 @@ public class CfgVisitor implements Visitor {
 			
 			closeTextCurrentNode();
 			// add edge to expr block of while
-			addEdge(child_1, parentNodeNo);
+//			addEdge(child_1, parentNodeNo);
+			addEdge(nodeSerial-1, parentNodeNo);
 			// add edge from e to L2 : exitblock
 			addEdge(parentNodeNo, nodeSerial);
 			//int child_2 = nodeSerial;
