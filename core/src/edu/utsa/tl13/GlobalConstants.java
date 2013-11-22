@@ -4,10 +4,17 @@ public class GlobalConstants {
 	public static final String INT_TYPE = "INT";
 	public static final String BOOL_TYPE = "BOOL";
 	public static final String IDENT = "ident";
+	/*color values : error = pastel13/1, int ident =/pastel13/3  bool ident=/pastel13/2 others=lightgrey
+	 *decl color same as ident color; list color = white
+	 **/
 	public static final String COLOR_TEXT_ERROR = ",fillcolor=\"/pastel13/1\"";
-	public static final String COLOR_TEXT_NO_ERROR = ",fillcolor=\"/pastel13/3\"";
+	public static final String COLOR_TEXT_NO_ERROR = ",fillcolor=\"/x11/lightgrey\"";
 	public static final String COLOR_TEXT_IDENT = ",fillcolor=\"/pastel13/2\"";
 	public static final String COLOR_TEXT_TYPE = ",fillcolor=\"/x11/lightgrey\"";
+	
+	public static final String COLOR_TEXT_WHITE = ",fillcolor=\"/x11/white\"";
+	public static final String COLOR_TEXT_INT_VAL = ",fillcolor=\"/pastel13/3\"";
+	public static final String COLOR_TEXT_BOOL_VAL = ",fillcolor=\"/pastel13/2\"";
 	// instructions opcode
 	public static final String OPCODE_ADD = "add";
 	public static final String OPCODE_SUB = "sub";

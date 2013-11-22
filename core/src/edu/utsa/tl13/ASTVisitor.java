@@ -50,7 +50,13 @@ public class ASTVisitor implements Visitor {
 	public void visit(Declarations ds) {
 		int parent = currentParentNo;
 		for( DeclarationUnit d : ds.getDeclarationList()) {
-			int child_1 = addNewNode("decl: " + d.getIdent(), GlobalConstants.COLOR_TEXT_IDENT);
+			/*check the ident type for assigning diff color for int and bool val*/
+			String id_color = GlobalConstants.COLOR_TEXT_INT_VAL;;
+			if( d.getIdType().equals(GlobalConstants.BOOL_TYPE)) {
+				id_color = GlobalConstants.COLOR_TEXT_BOOL_VAL;
+			}
+			/*end check*/
+			int child_1 = addNewNode("decl: " + d.getIdent(), id_color);
 			addEdge(parent , child_1);
 			int type = addNewNode(d.getIdType(), GlobalConstants.COLOR_TEXT_TYPE);
 			addEdge(child_1, type);
@@ -183,8 +189,14 @@ public class ASTVisitor implements Visitor {
 			if( ((AssignmentNode) s).getReadInt() != null ) {
 				int child = addNewNode(" := readInt ", getNodeColor(((AssignmentNode) s).type_ok));
 				addEdge(parent, child);
-				
-				int child_1 = addNewNode(((AssignmentNode) s).getIdentNode(), GlobalConstants.COLOR_TEXT_IDENT);
+				/*check id type for assigning different color for bool and int*/
+				String id_color = GlobalConstants.COLOR_TEXT_INT_VAL;
+				String ident_type = SymbolTable.getInstance().getType(((AssignmentNode) s).getIdentNode());
+				if( ident_type.equals(GlobalConstants.BOOL_TYPE)) {
+					id_color = GlobalConstants.COLOR_TEXT_BOOL_VAL;
+				}
+				/*end check*/
+				int child_1 = addNewNode(((AssignmentNode) s).getIdentNode(), id_color);
 				addEdge(child, child_1);
 			
 			}
@@ -192,7 +204,16 @@ public class ASTVisitor implements Visitor {
 				int child = addNewNode(" := ", getNodeColor(((AssignmentNode) s).type_ok));
 				addEdge(parent, child);
 				
-				int child_1 = addNewNode(((AssignmentNode) s).getIdentNode(), GlobalConstants.COLOR_TEXT_IDENT);
+				/*check id type for assigning different color for bool and int*/
+				String id_color = GlobalConstants.COLOR_TEXT_INT_VAL;;
+				String ident_type = SymbolTable.getInstance().getType(((AssignmentNode) s).getIdentNode());
+				if( ident_type.equals(GlobalConstants.BOOL_TYPE)) {
+					id_color = GlobalConstants.COLOR_TEXT_BOOL_VAL;
+				}
+				/*end check*/
+
+				
+				int child_1 = addNewNode(((AssignmentNode) s).getIdentNode(), id_color);
 				addEdge(child, child_1);
 				
 				ExpressionNode expr = ((AssignmentNode) s).getExpr();
@@ -333,7 +354,14 @@ public class ASTVisitor implements Visitor {
 		int parent = currentParentNo;
 		
 		if( f.getExpr() == null ) {
-			int child = addNewNode(f.getId(), GlobalConstants.COLOR_TEXT_IDENT);
+			/*check id type for assigning different color for bool and int*/
+			String id_color = GlobalConstants.COLOR_TEXT_INT_VAL;;
+			if( f.getDataType().equals(GlobalConstants.BOOL_TYPE)) {
+				id_color = GlobalConstants.COLOR_TEXT_BOOL_VAL;
+			}
+			/*end check*/
+
+			int child = addNewNode(f.getId(), id_color);
 			addEdge(parent, child);
 		}
 		else {

@@ -21,12 +21,17 @@ public class AssignmentNode extends StatementNode implements Visitable {
 		this.identType = identType;
 	}
 	
+	
 	public void accept( Visitor visitor ) {
 		visitor.visit(this);
 	}
 
 	public String getIdentNode() {
 		return identNode;
+	}
+	
+	public String getIdentType() {
+		return identType;
 	}
 
 	public ExpressionNode getExpr() {
