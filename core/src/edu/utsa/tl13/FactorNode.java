@@ -56,6 +56,12 @@ public class FactorNode implements Visitable {
 			if( this.id_type.equals("num")) {
 				this.dataType = GlobalConstants.INT_TYPE;
 				this.type_ok = true;
+				/*check int range */
+				Long value = Long.parseLong(this.id);
+				if(value < 0 || value > 2147483647){
+					System.out.println("num out of range [0-2147483647]");
+					this.type_ok = false;
+				}
 			}
 			// boollit
 			else if( this.id_type.equals("boollit")) {
