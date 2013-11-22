@@ -45,8 +45,11 @@ public class FactorNode implements Visitable {
 
 	public boolean typeOkay() {
 		if( this.expr != null ) {
+			this.type_ok = this.expr.typeOkay();
 			this.dataType = expr.getDataType();
-			return (this.type_ok && this.expr.typeOkay());
+			return this.type_ok;
+		   
+		   
 		}
 		else { 
 			//num

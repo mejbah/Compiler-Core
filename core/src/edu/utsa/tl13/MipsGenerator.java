@@ -99,12 +99,22 @@ public class MipsGenerator {
 			lines = lines + "\tsw $t0, " + getOffset(inst.getDest()) +"($fp)\n";
 			lines = lines + "\n";
 		}
-//		else if( opcode.equals(GlobalConstants.OPCODE_DIV)){
-//			source = new String("div " + this.src1 +","+ this.src2 + " =&gt; " + this.dest );
-//		}
-//		else if( opcode.equals(GlobalConstants.OPCODE_MOD)){
-//			source = new String("div " + this.src1 +","+ this.src2 + " =&gt; " + this.dest );
-//		}
+		else if( opcode.equals(GlobalConstants.OPCODE_DIV)){
+			lines = new String("\t# " + inst.getInstructionSourceText() + "\n"); 
+			lines = lines +"\tlw $t1, " + getOffset(inst.getSrc1()) + "($fp)\n";
+			lines = lines +"\tlw $t2, " + getOffset(inst.getSrc2()) + "($fp)\n";
+			lines = lines +"\tdiv $t0, $t1, $t2\n";  
+			lines = lines + "\tsw $t0, " + getOffset(inst.getDest()) +"($fp)\n";
+			lines = lines + "\n";
+		}
+		else if( opcode.equals(GlobalConstants.OPCODE_MOD)){
+			lines = new String("\t# " + inst.getInstructionSourceText() + "\n"); 
+			lines = lines +"\tlw $t1, " + getOffset(inst.getSrc1()) + "($fp)\n";
+			lines = lines +"\tlw $t2, " + getOffset(inst.getSrc2()) + "($fp)\n";
+			lines = lines +"\trem $t0, $t1, $t2\n";  
+			lines = lines + "\tsw $t0, " + getOffset(inst.getDest()) +"($fp)\n";
+			lines = lines + "\n";
+		}
 		else if( opcode.equals(GlobalConstants.OPCODE_LOADI)){
 			lines = new String("\t# " + inst.getInstructionSourceText() + "\n"); 
 			lines = lines +"\tli $t0, " + inst.getSrc1() + "\n";
@@ -112,9 +122,20 @@ public class MipsGenerator {
 			lines = lines + "\n";
 			
 		}
-//		else if( opcode.equals(GlobalConstants.OPCODE_LT)){
-//			source = new String("cmp_LT " + this.src1 +","+ this.src2 +" =&gt; " + this.dest );
-//		}
+		else if( opcode.equals(GlobalConstants.OPCODE_LT)){
+			/*
+			 *lw $t1, -12($fp)
+				lw $t2, 0($fp)
+				slt $t0, $t1, $t2
+				sw $t0, -16($fp) 
+			 */
+			lines = new String("\t# " + inst.getInstructionSourceText() + "\n"); 
+			lines = lines +"\tlw $t1, " + getOffset(inst.getSrc1()) + "($fp)\n";
+			lines = lines +"\tlw $t2, " + getOffset(inst.getSrc2()) + "($fp)\n";
+			lines = lines +"\tslt $t0, $t1, $t2\n";  
+			lines = lines + "\tsw $t0, " + getOffset(inst.getDest()) +"($fp)\n";
+			lines = lines + "\n";
+		}
 		else if( opcode.equals(GlobalConstants.OPCODE_LE)){
 			/*
 			 * # cmp_LE r1, r_N => r2
@@ -130,18 +151,38 @@ public class MipsGenerator {
 			lines = lines + "\tsw $t0, " + getOffset(inst.getDest()) +"($fp)\n";
 			lines = lines + "\n";
 		}
-//		else if( opcode.equals(GlobalConstants.OPCODE_GT)){
-//			source = new String("cmp_GT " + this.src1 +","+ this.src2 +" =&gt; " + this.dest );
-//		}
-//		else if( opcode.equals(GlobalConstants.OPCODE_GE)){
-//			source = new String("cmp_GE " + this.src1 +","+ this.src2 +" =&gt; " + this.dest );
-//		}
-//		else if( opcode.equals(GlobalConstants.OPCODE_CMPEQ)){
-//			source = new String("cmp_EQ " + this.src1 +","+ this.src2 +" =&gt; " + this.dest );
-//		}
-//		else if( opcode.equals(GlobalConstants.OPCODE_CMPNE)){
-//			source = new String("cmp_NE " + this.src1 +","+ this.src2 +" =&gt; " + this.dest );
-//		}
+		else if( opcode.equals(GlobalConstants.OPCODE_GT)){
+			lines = new String("\t# " + inst.getInstructionSourceText() + "\n"); 
+			lines = lines +"\tlw $t1, " + getOffset(inst.getSrc1()) + "($fp)\n";
+			lines = lines +"\tlw $t2, " + getOffset(inst.getSrc2()) + "($fp)\n";
+			lines = lines +"\tsgt $t0, $t1, $t2\n";  
+			lines = lines + "\tsw $t0, " + getOffset(inst.getDest()) +"($fp)\n";
+			lines = lines + "\n";
+		}
+		else if( opcode.equals(GlobalConstants.OPCODE_GE)){
+			lines = new String("\t# " + inst.getInstructionSourceText() + "\n"); 
+			lines = lines +"\tlw $t1, " + getOffset(inst.getSrc1()) + "($fp)\n";
+			lines = lines +"\tlw $t2, " + getOffset(inst.getSrc2()) + "($fp)\n";
+			lines = lines +"\tsge $t0, $t1, $t2\n";  
+			lines = lines + "\tsw $t0, " + getOffset(inst.getDest()) +"($fp)\n";
+			lines = lines + "\n";
+		}
+		else if( opcode.equals(GlobalConstants.OPCODE_CMPEQ)){
+			lines = new String("\t# " + inst.getInstructionSourceText() + "\n"); 
+			lines = lines +"\tlw $t1, " + getOffset(inst.getSrc1()) + "($fp)\n";
+			lines = lines +"\tlw $t2, " + getOffset(inst.getSrc2()) + "($fp)\n";
+			lines = lines +"\tseq $t0, $t1, $t2\n";  
+			lines = lines + "\tsw $t0, " + getOffset(inst.getDest()) +"($fp)\n";
+			lines = lines + "\n";
+		}
+		else if( opcode.equals(GlobalConstants.OPCODE_CMPNE)){
+			lines = new String("\t# " + inst.getInstructionSourceText() + "\n"); 
+			lines = lines +"\tlw $t1, " + getOffset(inst.getSrc1()) + "($fp)\n";
+			lines = lines +"\tlw $t2, " + getOffset(inst.getSrc2()) + "($fp)\n";
+			lines = lines +"\tsne $t0, $t1, $t2\n";  
+			lines = lines + "\tsw $t0, " + getOffset(inst.getDest()) +"($fp)\n";
+			lines = lines + "\n";
+		}
 		else if( opcode.equals(GlobalConstants.OPCODE_CBR)){ // in case of cbr src2 to the 1st branch destination
 			/*
 			 * # cbr r2 -> B3, B4
