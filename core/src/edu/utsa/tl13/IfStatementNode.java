@@ -49,6 +49,11 @@ public class IfStatementNode extends StatementNode implements Visitable {
 				else {
 					this.type_ok = true;
 				}
+				if(! this.elseStatements.getStatementList().isEmpty())
+					this.type_ok = this.elseStatements.typeOkay();
+				else {
+					this.type_ok = true;
+				}
 			}
 		}
 		

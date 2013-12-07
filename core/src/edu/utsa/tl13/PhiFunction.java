@@ -41,7 +41,7 @@ public class PhiFunction {
 		String text = new String("phi ");
 		text += this.getDestination().getName() + "." 
 		+ this.getDestination().getNumber()
-		+ " <-- ";
+		+ " &lt;-- ";
 		for( VarWithNumbers s : this.sources ) {
 			text += s.getName() + "." + s.getNumber() + " ";
 		}

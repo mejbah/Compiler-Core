@@ -20,11 +20,13 @@ public class Compiler {
         String astOutName = baseName + ".ast.dot";
         String cfgOutName = baseName + ".iloc.cfg.dot";
         String mipsOutName = baseName + ".s";
+        String ssaOutName = baseName + ".ssa.cfg.dot";
 	System.out.println("Input file: " + inputFileName);
 	System.out.println("Output file: " + parseOutName);
 	System.out.println("Output file: " + astOutName);
 	System.out.println("Output file: " + cfgOutName);
 	System.out.println("Output file: " + mipsOutName);
+	System.out.println("Output file: " + ssaOutName);
 	Scanner scanner = new Scanner(inputFileName);
 	scanner.startScanner();
 /*
@@ -37,7 +39,7 @@ public class Compiler {
 	String parseTree = parser.parse();
 	String asTree = parser.getTextForAST();
 	String cfgTree = parser.getTextForCFG();
-	
+	String ssaTree = parser.getTextForSSA();
 //	for( Instruction inst : ILOCsingleton.getInstance().getIlocInstructionList()) {
 //    	System.out.println(inst.getInstructionSourceText());
 //    }
@@ -88,6 +90,12 @@ public class Compiler {
 	psMips.print(mipsText);
 	mipsOut.close();
 	psMips.close();
+	
+	OutputStream ssaOut = new FileOutputStream(ssaOutName);
+	java.io.PrintStream psSSACfg = new java.io.PrintStream(ssaOut);
+	psSSACfg.print(ssaTree);
+	ssaOut.close();
+	psSSACfg.close();
  }
     
 }

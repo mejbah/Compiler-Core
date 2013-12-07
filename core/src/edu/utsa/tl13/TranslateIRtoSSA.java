@@ -1,6 +1,8 @@
 package edu.utsa.tl13;
 
 import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.Stack;
 
 public class TranslateIRtoSSA {
@@ -9,6 +11,7 @@ public class TranslateIRtoSSA {
 //	HashMap<String, Integer> varNumber; // maps original var to current subscript
 	HashMap<String, VarWithNumbers> varNumber;
 	HashMap<String, BlockSSA> ssaBlocks; // maps block name to new ssa block
+	
 	
 	
 	private boolean isAssignment( Instruction inst ) {
@@ -136,6 +139,17 @@ public class TranslateIRtoSSA {
 			block.addPhiFunction(origVar, srcVar.getNumber());
 		}
 	}
+	
+	private BlockSSA getSSAblock( String name ) {
+		if( ssaBlocks.containsKey(name)) {
+			return ssaBlocks.get(name);
+		}
+		else {
+			BlockSSA b = new BlockSSA( name );
+			ssaBlocks.put(name, b);
+			return b;
+		}
+	}
 	/**
 	 * create non minimal SSA
 	 */
@@ -161,19 +175,35 @@ public class TranslateIRtoSSA {
 		root.setSuccessor1(child1);
 		root.setSuccessor2(child2);
 		
+		Set<String> varForPhi = new HashSet<String>();
 		for( Instruction inst : cfgRoot.getInstructions()) {
 			//add instruction in block
 			addSSAInstruction(root, inst);
+			
 			// add phi function in successor
 			if(isAssignment(inst)) {
-				if(child1 != null ) {
-					addPhiFunction(child1, inst.getDest(), varNumber.get(inst.getDest()));
-					if(child2 != null) {
-						addPhiFunction(child2, inst.getDest(), varNumber.get(inst.getDest()));
-					}
-				}
-				
+				varForPhi.add(inst.getDest());
 			}
+			
+//			if(isAssignment(inst)) {
+//				if(child1 != null ) {
+//					addPhiFunction(child1, inst.getDest(), varNumber.get(inst.getDest()));
+//					if(child2 != null) {
+//						addPhiFunction(child2, inst.getDest(), varNumber.get(inst.getDest()));
+//					}
+//				}
+//				
+//			}
+		}
+		// add phi function in successor
+		for( String s : varForPhi ){
+			if(child1 != null) {
+				addPhiFunction(child1, s, varNumber.get(s));
+				if(child2 != null) {
+					addPhiFunction(child2, s, varNumber.get(s));
+				}
+			}
+			
 		}
 		
 		//add the block in hashmap
@@ -201,11 +231,13 @@ public class TranslateIRtoSSA {
 					child1 = null; 
 					child2 = null;
 					if( s1.getSuccessor1() != null) {
-						
-						child1 = new BlockSSA( s1.getSuccessor1().getBlockName());
+					// TODO: check existing SSA block before creating new ??
+						child1 = getSSAblock(s1.getSuccessor1().getBlockName());
+						//child1 = new BlockSSA( s1.getSuccessor1().getBlockName());
 						
 						if(s1.getSuccessor2() != null) {
-							child2 = new BlockSSA(s1.getSuccessor2().getBlockName());
+							child2 = getSSAblock(s1.getSuccessor2().getBlockName());
+//							child2 = new BlockSSA(s1.getSuccessor2().getBlockName());
 							
 						}
 						
@@ -214,21 +246,35 @@ public class TranslateIRtoSSA {
 					newblock.setSuccessor1(child1);
 					newblock.setSuccessor2(child2);
 					
+					Set<String> phiVars = new HashSet<String>();
 					for( Instruction inst : s1.getInstructions()) {
 						//add instruction in block
 						addSSAInstruction(newblock, inst);
+						
 						// add phi function in successor
 						if(isAssignment(inst)) {
-							if(child1 != null ) {
-								addPhiFunction(child1, inst.getDest(), varNumber.get(inst.getDest()));
-								if(child2 != null) {
-									addPhiFunction(child2, inst.getDest(), varNumber.get(inst.getDest()));
-								}
+							phiVars.add(inst.getDest());
+						}
+//						if(isAssignment(inst)) {
+//							if(child1 != null ) {
+//								addPhiFunction(child1, inst.getDest(), varNumber.get(inst.getDest()));
+//								if(child2 != null) {
+//									addPhiFunction(child2, inst.getDest(), varNumber.get(inst.getDest()));
+//								}
+//							}
+//							
+//						}
+					}
+					// add phi function in successor
+					for( String s : phiVars ) {
+						if(child1 != null) {
+							addPhiFunction(child1, s, varNumber.get(s));
+							if(child2 != null) {
+								addPhiFunction(child2, s, varNumber.get(s));
 							}
-							
 						}
 					}
-
+					
 					//add the block in hashmap
 					ssaBlocks.put(newblock.getBlockName(), newblock);
 					if(child1 != null)
@@ -251,11 +297,12 @@ public class TranslateIRtoSSA {
 					child1 = null; 
 					child2 = null;
 					if( s2.getSuccessor1() != null) {
-						
-						child1 = new BlockSSA( s2.getSuccessor1().getBlockName());
+						child1 = getSSAblock(s2.getSuccessor1().getBlockName());
+					//	child1 = new BlockSSA( s2.getSuccessor1().getBlockName());
 						
 						if(s2.getSuccessor2() != null) {
-							child2 = new BlockSSA(s2.getSuccessor2().getBlockName());
+							child2 = getSSAblock(s2.getSuccessor2().getBlockName());
+//							child2 = new BlockSSA(s2.getSuccessor2().getBlockName());
 							
 						}
 						
@@ -264,21 +311,35 @@ public class TranslateIRtoSSA {
 					newblock.setSuccessor1(child1);
 					newblock.setSuccessor2(child2);
 					
+					Set<String> phiVars = new HashSet<String>();
 					for( Instruction inst : s2.getInstructions()) {
 						//add instruction in block
 						addSSAInstruction(newblock, inst);
 						// add phi function in successor
 						if(isAssignment(inst)) {
-							if(child1 != null ) {
-								addPhiFunction(child1, inst.getDest(), varNumber.get(inst.getDest()));
-								if(child2 != null) {
-									addPhiFunction(child2, inst.getDest(), varNumber.get(inst.getDest()));
-								}
-							}
-							
+							phiVars.add(inst.getDest());
 						}
+//						if(isAssignment(inst)) {
+//							if(child1 != null ) {
+//								addPhiFunction(child1, inst.getDest(), varNumber.get(inst.getDest()));
+//								if(child2 != null) {
+//									addPhiFunction(child2, inst.getDest(), varNumber.get(inst.getDest()));
+//								}
+//							}
+//							
+//						}
 					}
 
+					// add phi function in successor
+					for( String s : phiVars ) {
+						if(child1 != null) {
+							addPhiFunction(child1, s, varNumber.get(s));
+							if(child2 != null) {
+								addPhiFunction(child2, s, varNumber.get(s));
+							}
+						}
+					}
+					
 					//add the block in hashmap
 					ssaBlocks.put(newblock.getBlockName(), newblock);
 					if(child1 != null)
@@ -301,11 +362,14 @@ public class TranslateIRtoSSA {
 	
 	
 	
-	public void printSSAInstructions( BlockSSA b ) {
+	public void printSSAInstructions( BlockSSA b, Set<String> blocksVisited ) {
+		if( ! blocksVisited.contains(b.getBlockName())) {
+		blocksVisited.add(b.getBlockName());	
+		
 		System.out.println("Block : " + b.getBlockName());
 		for( String var : b.getPhiVars()) {
 			PhiFunction p = b.getPhiFunctions().get(var);
-			p.printText();
+			System.out.println(p.printText());
 		}
 		for (SSAInstruction inst : b.getInstructions()) {
 		  System.out.println(inst.getSourceCode());
@@ -314,17 +378,32 @@ public class TranslateIRtoSSA {
 			return;
 		}
 		else {
-			printSSAInstructions(b.getSuccessor1());
+			printSSAInstructions(b.getSuccessor1(), blocksVisited);
 			if( b.getSuccessor2() != null ) {
-				printSSAInstructions(b.getSuccessor2());
+				printSSAInstructions(b.getSuccessor2(), blocksVisited);
 			}
 		}
+		
+		} 
 		
 	}
 	
 	public void debugPrint() {
+		
+		Set<String> blockNames = new HashSet<String>();
 		if(root != null)
-			printSSAInstructions(root);
+			printSSAInstructions(root, blockNames);
+	}
+	/*
+	 * text for the graphviz file
+	 */
+	public String graphVizString() {
+		CfgSSAForm graph = new CfgSSAForm();
+		if(root != null) {
+			graph.graphVizText(root);
+		}
+		return graph.getTextToWrite();
+		
 	}
 //	
 //	public void crudeSSA( ILOC_block block ) {

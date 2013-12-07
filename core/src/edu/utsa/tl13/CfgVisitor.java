@@ -21,9 +21,13 @@ public class CfgVisitor implements Visitor {
 	
 	public void printBlockInstructions( ILOC_block b ) {
 		System.out.println("Block : " + b.getBlockName());
-		for (Instruction inst : b.getInstructions()) {
-		  System.out.println(inst.getInstructionSourceText());
-		}
+		if( b.getSuccessor1() != null )
+			System.out.println("c1 : " + b.getSuccessor1().getBlockName());
+		if( b.getSuccessor2() != null )
+			System.out.println("c1 : " + b.getSuccessor2().getBlockName());
+//		for (Instruction inst : b.getInstructions()) {
+//		  System.out.println(inst.getInstructionSourceText());
+//		}
 		if(b.getSuccessor1() == null) {
 			return;
 		}
@@ -37,7 +41,7 @@ public class CfgVisitor implements Visitor {
 	}
 	
 	public void debugPrint() {
-		printBlockInstructions(root_block);
+//		printBlockInstructions(root_block);
 	}
 	
 	
@@ -362,6 +366,7 @@ public class CfgVisitor implements Visitor {
 			
 			createNewNode(loopblock);
 			current_block.addSuccessor(b2);
+			current_block.addSuccessor(b3);
 			current_block = b2; //loop block
 			
 			// add while statements
@@ -379,7 +384,7 @@ public class CfgVisitor implements Visitor {
 			addEdge(parentNodeNo, nodeSerial);
 			//int child_2 = nodeSerial;
 			createNewNode(exitblock);
-			current_block.addSuccessor(b3);
+			current_block.addSuccessor(b1);
 			current_block = b3;
 			
 		}
