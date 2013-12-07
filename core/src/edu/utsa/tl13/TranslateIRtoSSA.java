@@ -30,6 +30,101 @@ public class TranslateIRtoSSA {
 		varNumber = new HashMap<String, VarWithNumbers>();
 		ssaBlocks = new HashMap<String, BlockSSA>();
 	}
+//	/*
+//	 * add instructions is SSA form in a block
+//	 */
+//	private void addSSAInstruction( BlockSSA dest, Instruction inst ) {
+//		if(isAssignment(inst)) {
+//			VarWithNumbers newDest = null ;
+//			VarWithNumbers newSrc1 = null;
+//			VarWithNumbers newSrc2 = null;
+//			
+//			if( varNumber.get(inst.getDest()) == null ) {
+//				// new ir var
+//				newDest = new VarWithNumbers(inst.getDest(), 1); // first subscript number is 1
+//				varNumber.put(inst.getDest(), newDest);
+//			} 
+//			else {
+//				int subscript = varNumber.get(inst.getDest()).getNumber();
+//				subscript = subscript + 1;
+//				newDest = new VarWithNumbers(inst.getDest(), subscript ); // first subscript number is 1
+//				varNumber.put(inst.getDest(), newDest);
+//				
+//			}
+//			
+//			String src1 = inst.getSrc1();
+//			
+//			//******* for load src is immediate value*/////
+//			if(inst.getOpcode() == GlobalConstants.OPCODE_LOADI) {
+//				newSrc1 =  new VarWithNumbers(src1, 1); // TODO : special care for prinintng
+//				
+//			}
+//			else {
+//			
+//			
+//			//******* end special check for immidiate instruction loadI*////
+//			// check if we have a phi function for the variable in the block
+//			if( dest.getPhiFunctions().containsKey(src1)) {
+//				newSrc1 =  dest.getPhiFunctions().get(src1).getDestination();
+//			} 
+//			else {
+//				// defined in this block : will be in varNumber list
+//				newSrc1 = varNumber.get(src1);
+//			}
+//			
+//			if( inst.getSrc2() != null ) {
+//				String src2 = inst.getSrc2();
+//				
+//				// check if we have a phi function for the variable in the block
+//				if( dest.getPhiFunctions().containsKey(src2)) {
+//					newSrc2 =  dest.getPhiFunctions().get(src2).getDestination();
+//				} 
+//				else {
+//					// defined in this block : will be in varNumber list
+//					newSrc2 = varNumber.get(src2);
+//				}
+//				
+//			}
+//			} // end of checking if block  for loadI case
+//			dest.addInstruction(new SSAInstruction(inst.getOpcode(), newSrc1, newSrc2, newDest, false, null, null));
+//		}
+//		else { //jumpI cbr writeInt
+//			if( inst.getSrc1() == null ) { //jumpI : no src, destination is label
+//				dest.addInstruction(new SSAInstruction(inst.getOpcode(), null, null, null, true, inst.getDest(),null));
+//			}
+//			else if(inst.getSrc2() == null ){ // writeInt
+//				VarWithNumbers newSrc1 = null;
+//				String src1 = inst.getSrc1();
+//				// check if we have a phi function for the variable in the block
+//				if( dest.getPhiFunctions().containsKey(src1)) {
+//					newSrc1 =  dest.getPhiFunctions().get(src1).getDestination();
+//				} 
+//				else {
+//					// defined in this block : will be in varNumber list
+//					newSrc1 = varNumber.get(src1);
+//				}
+//				dest.addInstruction(new SSAInstruction(inst.getOpcode(), newSrc1, null, null, false, null, null));
+//			
+//			}
+//			else { //cbr
+//				VarWithNumbers newSrc1 = null;
+//				String src1 = inst.getSrc1();
+//				// check if we have a phi function for the variable in the block
+//				if( dest.getPhiFunctions().containsKey(src1)) {
+//					newSrc1 =  dest.getPhiFunctions().get(src1).getDestination();
+//				} 
+//				else {
+//					// defined in this block : will be in varNumber list
+//					newSrc1 = varNumber.get(src1);
+//				}
+//				
+//				dest.addInstruction(new SSAInstruction(inst.getOpcode(), newSrc1, null, null, true, inst.getSrc2(), inst.getDest()));
+//			}
+//		}
+//		
+//	}
+	
+	/* new edited function for above : delete following and uncomment above function if not working */
 	/*
 	 * add instructions is SSA form in a block
 	 */
@@ -39,18 +134,6 @@ public class TranslateIRtoSSA {
 			VarWithNumbers newSrc1 = null;
 			VarWithNumbers newSrc2 = null;
 			
-			if( varNumber.get(inst.getDest()) == null ) {
-				// new ir var
-				newDest = new VarWithNumbers(inst.getDest(), 1); // first subscript number is 1
-				varNumber.put(inst.getDest(), newDest);
-			} 
-			else {
-				int subscript = varNumber.get(inst.getDest()).getNumber();
-				subscript = subscript + 1;
-				newDest = new VarWithNumbers(inst.getDest(), subscript ); // first subscript number is 1
-				varNumber.put(inst.getDest(), newDest);
-				
-			}
 			
 			String src1 = inst.getSrc1();
 			
@@ -63,30 +146,59 @@ public class TranslateIRtoSSA {
 			
 			
 			//******* end special check for immidiate instruction loadI*////
-			// check if we have a phi function for the variable in the block
-			if( dest.getPhiFunctions().containsKey(src1)) {
-				newSrc1 =  dest.getPhiFunctions().get(src1).getDestination();
-			} 
-			else {
-				// defined in this block : will be in varNumber list
+			//check if the source is defined in this block
+			if( dest.isDefined(src1)) {
 				newSrc1 = varNumber.get(src1);
 			}
+			else {
+			//else if should be defined in phi functions
+				if( dest.getPhiFunctions().containsKey(src1)) {
+					newSrc1 =  dest.getPhiFunctions().get(src1).getDestination();
+				}
+				else {
+					System.out.println("### Not found src ###");
+				}
+			}
+			
 			
 			if( inst.getSrc2() != null ) {
 				String src2 = inst.getSrc2();
 				
-				// check if we have a phi function for the variable in the block
-				if( dest.getPhiFunctions().containsKey(src2)) {
-					newSrc2 =  dest.getPhiFunctions().get(src2).getDestination();
-				} 
-				else {
-					// defined in this block : will be in varNumber list
+				//check if the source is defined in this block
+				if( dest.isDefined(src2)) {
 					newSrc2 = varNumber.get(src2);
+				}
+				else {
+				//else if should be defined in phi functions
+					if( dest.getPhiFunctions().containsKey(src2)) {
+						newSrc2 =  dest.getPhiFunctions().get(src2).getDestination();
+					}
+					else {
+						System.out.println("### Not found src ###");
+					}
 				}
 				
 			}
 			} // end of checking if block  for loadI case
+			// update destination
+			if( varNumber.get(inst.getDest()) == null ) {
+				// new ir var
+				newDest = new VarWithNumbers(inst.getDest(), 1); // first subscript number is 1
+				varNumber.put(inst.getDest(), newDest);
+			} 
+			else {
+				int subscript = varNumber.get(inst.getDest()).getNumber();
+				subscript = subscript + 1;
+				newDest = new VarWithNumbers(inst.getDest(), subscript ); // first subscript number is 1
+				varNumber.put(inst.getDest(), newDest);
+				
+			}
+
 			dest.addInstruction(new SSAInstruction(inst.getOpcode(), newSrc1, newSrc2, newDest, false, null, null));
+			
+			/** add set of variable assigned in this block **/
+			dest.addDefinedVar(inst.getDest());
+			
 		}
 		else { //jumpI cbr writeInt
 			if( inst.getSrc1() == null ) { //jumpI : no src, destination is label
@@ -95,13 +207,18 @@ public class TranslateIRtoSSA {
 			else if(inst.getSrc2() == null ){ // writeInt
 				VarWithNumbers newSrc1 = null;
 				String src1 = inst.getSrc1();
-				// check if we have a phi function for the variable in the block
-				if( dest.getPhiFunctions().containsKey(src1)) {
-					newSrc1 =  dest.getPhiFunctions().get(src1).getDestination();
-				} 
-				else {
-					// defined in this block : will be in varNumber list
+				//check if the source is defined in this block
+				if( dest.isDefined(src1)) {
 					newSrc1 = varNumber.get(src1);
+				}
+				else {
+				//else if should be defined in phi functions
+					if( dest.getPhiFunctions().containsKey(src1)) {
+						newSrc1 =  dest.getPhiFunctions().get(src1).getDestination();
+					}
+					else {
+						System.out.println("### Not found src ###");
+					}
 				}
 				dest.addInstruction(new SSAInstruction(inst.getOpcode(), newSrc1, null, null, false, null, null));
 			
@@ -109,13 +226,18 @@ public class TranslateIRtoSSA {
 			else { //cbr
 				VarWithNumbers newSrc1 = null;
 				String src1 = inst.getSrc1();
-				// check if we have a phi function for the variable in the block
-				if( dest.getPhiFunctions().containsKey(src1)) {
-					newSrc1 =  dest.getPhiFunctions().get(src1).getDestination();
-				} 
-				else {
-					// defined in this block : will be in varNumber list
+				//check if the source is defined in this block
+				if( dest.isDefined(src1)) {
 					newSrc1 = varNumber.get(src1);
+				}
+				else {
+				//else if should be defined in phi functions
+					if( dest.getPhiFunctions().containsKey(src1)) {
+						newSrc1 =  dest.getPhiFunctions().get(src1).getDestination();
+					}
+					else {
+						System.out.println("### Not found src ###");
+					}
 				}
 				
 				dest.addInstruction(new SSAInstruction(inst.getOpcode(), newSrc1, null, null, true, inst.getSrc2(), inst.getDest()));
@@ -123,7 +245,10 @@ public class TranslateIRtoSSA {
 		}
 		
 	}
+
 	
+	
+	/* end edit new function */
 	public void addPhiFunction( BlockSSA block, String origVar, VarWithNumbers srcVar ) {
 		//check if already a phi function created for the block
 		if(block.getPhiFunctions().get(origVar) == null) { // no phi exist
@@ -131,12 +256,13 @@ public class TranslateIRtoSSA {
 			int subscript = varNumber.get(origVar).getNumber();
 			subscript += 1;
 			VarWithNumbers destVar = new VarWithNumbers(origVar, subscript);
-			varNumber.put(origVar, destVar); // update global variable number subscript 
+			varNumber.put(origVar, destVar); // update global variable number subscript: wrong 
 			
-			block.addPhiFunction(origVar, srcVar.getNumber());
+			block.addPhiFunction(origVar, srcVar.getNumber(), destVar.getNumber());
 		}
 		else {
-			block.addPhiFunction(origVar, srcVar.getNumber());
+			// 3rd parameter dest var subscript not used if phi exist already
+			block.addPhiFunction(origVar, srcVar.getNumber(), 0 );
 		}
 	}
 	
@@ -185,22 +311,20 @@ public class TranslateIRtoSSA {
 				varForPhi.add(inst.getDest());
 			}
 			
-//			if(isAssignment(inst)) {
-//				if(child1 != null ) {
-//					addPhiFunction(child1, inst.getDest(), varNumber.get(inst.getDest()));
-//					if(child2 != null) {
-//						addPhiFunction(child2, inst.getDest(), varNumber.get(inst.getDest()));
-//					}
-//				}
-//				
-//			}
 		}
 		// add phi function in successor
 		for( String s : varForPhi ){
+			//store the src varwithnumber here as subscript may be updated in one child will 
+			//affect other child
+			 
+			VarWithNumbers srcForPhi = varNumber.get(s);
+			
 			if(child1 != null) {
-				addPhiFunction(child1, s, varNumber.get(s));
+//				addPhiFunction(child1, s, varNumber.get(s));
+				addPhiFunction(child1, s, srcForPhi);
 				if(child2 != null) {
-					addPhiFunction(child2, s, varNumber.get(s));
+//					addPhiFunction(child2, s, varNumber.get(s));
+					addPhiFunction(child2, s, srcForPhi);
 				}
 			}
 			
@@ -247,6 +371,12 @@ public class TranslateIRtoSSA {
 					newblock.setSuccessor2(child2);
 					
 					Set<String> phiVars = new HashSet<String>();
+					/* new edit : first add the current block phi assignment instruction */
+					for( String var : newblock.getPhiVars()) {
+						
+						phiVars.add(var);
+					}
+					/* end new edit */
 					for( Instruction inst : s1.getInstructions()) {
 						//add instruction in block
 						addSSAInstruction(newblock, inst);
@@ -255,22 +385,27 @@ public class TranslateIRtoSSA {
 						if(isAssignment(inst)) {
 							phiVars.add(inst.getDest());
 						}
-//						if(isAssignment(inst)) {
-//							if(child1 != null ) {
-//								addPhiFunction(child1, inst.getDest(), varNumber.get(inst.getDest()));
-//								if(child2 != null) {
-//									addPhiFunction(child2, inst.getDest(), varNumber.get(inst.getDest()));
-//								}
-//							}
-//							
-//						}
 					}
+					
 					// add phi function in successor
 					for( String s : phiVars ) {
+						//store the src varwithnumber here as subscript may be updated in one child will 
+						//affect other child
+						VarWithNumbers srcForPhi = varNumber.get(s); 
+						
+						if( ! newblock.isDefined(s) ) {
+							// not defined just passing my phi to successor
+							PhiFunction phi = newblock.getPhiFunctions().get(s);
+							srcForPhi = phi.getDestination();
+						}
+						
+						
 						if(child1 != null) {
-							addPhiFunction(child1, s, varNumber.get(s));
+//							addPhiFunction(child1, s, varNumber.get(s));
+							addPhiFunction(child1, s, srcForPhi);
 							if(child2 != null) {
-								addPhiFunction(child2, s, varNumber.get(s));
+//								addPhiFunction(child2, s, varNumber.get(s));
+								addPhiFunction(child2, s, srcForPhi);
 							}
 						}
 					}
@@ -319,23 +454,26 @@ public class TranslateIRtoSSA {
 						if(isAssignment(inst)) {
 							phiVars.add(inst.getDest());
 						}
-//						if(isAssignment(inst)) {
-//							if(child1 != null ) {
-//								addPhiFunction(child1, inst.getDest(), varNumber.get(inst.getDest()));
-//								if(child2 != null) {
-//									addPhiFunction(child2, inst.getDest(), varNumber.get(inst.getDest()));
-//								}
-//							}
-//							
-//						}
 					}
 
 					// add phi function in successor
 					for( String s : phiVars ) {
+						//store the src varwithnumber here as subscript may be updated in one child will 
+						//affect other child
+						VarWithNumbers srcForPhi = varNumber.get(s);
+						
+						if( ! newblock.isDefined(s) ) {
+							// not defined just passing my phi to successor
+							PhiFunction phi = newblock.getPhiFunctions().get(s);
+							srcForPhi = phi.getDestination();
+						}
+						
 						if(child1 != null) {
-							addPhiFunction(child1, s, varNumber.get(s));
+//							addPhiFunction(child1, s, varNumber.get(s));
+							addPhiFunction(child1, s, srcForPhi);
 							if(child2 != null) {
-								addPhiFunction(child2, s, varNumber.get(s));
+//								addPhiFunction(child2, s, varNumber.get(s));
+								addPhiFunction(child2, s, srcForPhi);
 							}
 						}
 					}
@@ -359,7 +497,13 @@ public class TranslateIRtoSSA {
 		
 		
 	}
-	
+	/**
+	 * call after crudeSSA() for minimal  phi function
+	 */
+	public void minimizationPhase() {
+		
+		
+	}
 	
 	
 	public void printSSAInstructions( BlockSSA b, Set<String> blocksVisited ) {
@@ -405,43 +549,6 @@ public class TranslateIRtoSSA {
 		return graph.getTextToWrite();
 		
 	}
-//	
-//	public void crudeSSA( ILOC_block block ) {
-//		
-//		BlockSSA newBlock = new BlockSSA();
-//		
-//		if(block.getSuccessor1() != null) { // has successor
-//			
-//			BlockSSA successor1 = new BlockSSA();
-//			newBlock.setSuccessor1(successor1);
-//			if( block.getSuccessor2() != null ) {
-//				BlockSSA successor2 = new BlockSSA();
-//				newBlock.setSuccessor2(successor2);
-//			}
-//			for( Instruction inst : block.getInstructions() ) {
-//				if(isAssignment(inst)) {
-//					//check dest var in hashmap for subscript
-//					int destSubscript;
-//					if( varNumber.get(inst.getDest()) == null ) {
-//						// first occurance of var, so initial subscript is put
-//						varNumber.put(inst.getDest(), 1);
-//						destSubscript = 1;
-//					}
-//					else {
-//						// else new assignment in successor
-//						destSubscript = varNumber.get(inst.getDest());
-//					}
-//					//insert phi in successor block
-//					newBlock.getSuccessor1().addPhiFunction( inst.getDest(), destSubscript );	
-//				}
-//				
-//				//add instruction in new block :: add opearands/src from phifunctions
-//			}
-//					
-//		}
-//		
-//		
-//	}
 	
 
 }
