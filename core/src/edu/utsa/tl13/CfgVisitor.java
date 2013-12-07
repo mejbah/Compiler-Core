@@ -10,8 +10,37 @@ public class CfgVisitor implements Visitor {
     		"subgraph cluster {\n" +
     		"color=\"/x11/white\"\n";
 //	int currentParentNo = 0;
+	ILOC_block current_block = null; // for keep track of current block
+	ILOC_block root_block = null; // root block
 	int nodeSerial = 0;
 	String returnValueRegister = null;
+	
+	public ILOC_block getRootBlock() {
+		return root_block;
+	}
+	
+	public void printBlockInstructions( ILOC_block b ) {
+		System.out.println("Block : " + b.getBlockName());
+		for (Instruction inst : b.getInstructions()) {
+		  System.out.println(inst.getInstructionSourceText());
+		}
+		if(b.getSuccessor1() == null) {
+			return;
+		}
+		else {
+			printBlockInstructions(b.getSuccessor1());
+			if( b.getSuccessor2() != null ) {
+				printBlockInstructions(b.getSuccessor2());
+			}
+		}
+		
+	}
+	
+	public void debugPrint() {
+		printBlockInstructions(root_block);
+	}
+	
+	
 	public void createNewNode( String blockName, ArrayList<String>instructions ) {
 		
 		textToWrite = textToWrite + "\nn"+ nodeSerial + " [label=<<table border=\"0\">";
@@ -74,6 +103,8 @@ public class CfgVisitor implements Visitor {
 		if(!ds.getDeclarationList().isEmpty()) {
 		//create the first block
 			ILOC_block b = new ILOC_block();
+			root_block = b; //block
+			current_block = root_block; //search with current_block for all new edited lines
 		
 			ArrayList<String>instructions = new ArrayList<String>();
 			for( DeclarationUnit d : ds.getDeclarationList()) {
@@ -82,11 +113,14 @@ public class CfgVisitor implements Visitor {
 					//load 0 in id_register
 					String id_register = "r_" + d.getIdent();
 					instructions.add((new Instruction(GlobalConstants.OPCODE_LOADI, "0",  "" , id_register )).getSourceCode());
+					//add to block
+					current_block.addBlockInstruction(new Instruction(GlobalConstants.OPCODE_LOADI, "0",  "" , id_register ));
 				}
 				else if(d.getIdType() == GlobalConstants.BOOL_TYPE){
 					String id_register = "r_" + d.getIdent();
 					instructions.add((new Instruction(GlobalConstants.OPCODE_LOADI, "0",  "" , id_register )).getSourceCode());
-					
+					//add to block
+					current_block.addBlockInstruction(new Instruction(GlobalConstants.OPCODE_LOADI, "0",  "" , id_register ));
 				}
 			}
 			// create node;
@@ -174,7 +208,7 @@ public class CfgVisitor implements Visitor {
 				String dest = new String( "r_" + ((AssignmentNode) s).getIdentNode());
 
 				addInsructionText((new Instruction(opcode, null, null, dest)).getSourceCode());
-				
+				current_block.addBlockInstruction(new Instruction(opcode, null, null, dest));
 			}
 			else {
 				String opcode = GlobalConstants.OPCODE_I2I;
@@ -183,7 +217,7 @@ public class CfgVisitor implements Visitor {
 				String dest = new String( "r_" + ((AssignmentNode) s).getIdentNode());
 				String src = returnValueRegister;
 				addInsructionText((new Instruction(opcode, src, null, dest)).getSourceCode());
-				
+				current_block.addBlockInstruction(new Instruction(opcode, src, null, dest));
 				
 			}
 	   
@@ -191,8 +225,19 @@ public class CfgVisitor implements Visitor {
 		else if( s instanceof IfStatementNode ) {
 			// jmp to a new block
 			String opcode = GlobalConstants.OPCODE_JUMPI;
-			String blockName = ILOCsingleton.getInstance().getNewBlock();
+			//create new block & add jump to current block 
+			//add current block successor = new block
+			//then current block becomes the new block
+			// 
+			ILOC_block b = new ILOC_block();
+			//String blockName = ILOCsingleton.getInstance().getNewBlock(); // replaced with next line
+			String blockName = b.getBlockName();
+			
 			addInsructionText(new Instruction(opcode, null, null, blockName).getSourceCode());
+			current_block.addBlockInstruction(new Instruction(opcode, null, null, blockName));
+			
+			current_block.addSuccessor(b);
+			current_block = b;
 			
 			int parentNodeNo = nodeSerial; // store current node no for creating edge
 			closeTextCurrentNode();
@@ -204,13 +249,21 @@ public class CfgVisitor implements Visitor {
 			//evaluate expr
 			((IfStatementNode) s).getExpr().accept(this);
 			String src = returnValueRegister;
-			// cbr to L1(if true) or L2 : cbr src l1,l2
+			
 			opcode = GlobalConstants.OPCODE_CBR;
 			
-			String ifblock = ILOCsingleton.getInstance().getNewBlock();
-			String elseblock = ILOCsingleton.getInstance().getNewBlock();
+			
+			ILOC_block b1 = new ILOC_block();
+			ILOC_block b2 = new ILOC_block();
+			String ifblock = b1.getBlockName();
+			String elseblock = b2.getBlockName();
+			//String ifblock = ILOCsingleton.getInstance().getNewBlock();
+			//String elseblock = ILOCsingleton.getInstance().getNewBlock();
 			
 			addInsructionText((new Instruction(opcode, src, ifblock, elseblock)).getSourceCode());
+			current_block.addBlockInstruction(new Instruction(opcode, src, ifblock, elseblock));
+			current_block.addSuccessor(b1);
+			current_block.addSuccessor(b2);
 			
 			parentNodeNo = nodeSerial; // store current node no for creating edge
 			closeTextCurrentNode();
@@ -220,14 +273,23 @@ public class CfgVisitor implements Visitor {
 			createNewNode(ifblock);
 			
 			int child1 = nodeSerial; //node no for if block
+			
+			current_block = b1;
 			((IfStatementNode) s).getStatements().accept(this);
 			
 			//jmp to exit block instruction
 			
-			// get the exit block for if-else block
 			opcode = GlobalConstants.OPCODE_JUMPI;
-			String exitblock = ILOCsingleton.getInstance().getNewBlock();
+			
+			// get the exit block for if-else block
+			ILOC_block b3 = new ILOC_block();
+			
+			String exitblock = b3.getBlockName();
+			//String exitblock = ILOCsingleton.getInstance().getNewBlock();
 			addInsructionText(new Instruction(opcode, null, null, exitblock).getSourceCode());
+			
+			current_block.addBlockInstruction(new Instruction(opcode, null, null, exitblock));
+			
 		    closeTextCurrentNode();
 		    
 		    
@@ -236,11 +298,13 @@ public class CfgVisitor implements Visitor {
 		    //create new block for else statments
 		    createNewNode(elseblock);
 		    int child2 = nodeSerial; //node no for else block
+		    current_block = b2;
 		    if(((IfStatementNode) s).getElseStatements() != null) {
 		    	((IfStatementNode) s).getElseStatements().accept(this);
 		    }
 			//jmp to exit block
 			addInsructionText(new Instruction(opcode, null, null, exitblock).getSourceCode());
+			current_block.addBlockInstruction(new Instruction(opcode, null, null, exitblock));
 			closeTextCurrentNode();
 			
 			
@@ -250,13 +314,20 @@ public class CfgVisitor implements Visitor {
 			
 			createNewNode(exitblock);
 			
+			b1.addSuccessor(b3);
+			b2.addSuccessor(b3);
+			current_block = b3;
+			
 						
 		}
 		if( s instanceof WhileStatementNode ) {
 			// jmp to a new block
 			String opcode = GlobalConstants.OPCODE_JUMPI;
-			String blockName = ILOCsingleton.getInstance().getNewBlock();
+			ILOC_block b1 = new ILOC_block();
+			String blockName = b1.getBlockName();
+			//String blockName = ILOCsingleton.getInstance().getNewBlock();
 			addInsructionText(new Instruction(opcode, null, null, blockName).getSourceCode());
+			current_block.addBlockInstruction(new Instruction(opcode, null, null, blockName));
 			
 			int parentNodeNo = nodeSerial; // store current node no for creating edge
 			closeTextCurrentNode();
@@ -264,31 +335,41 @@ public class CfgVisitor implements Visitor {
 			
 			// create new block for while expression
 			createNewNode(blockName);
-			
+			current_block.addSuccessor(b1);
+			current_block = b1;
 			//evaluate expr
 			((WhileStatementNode) s).getExpr().accept(this);
 			String src = returnValueRegister;
 			// cbr to L1(if true) or L2 : cbr src l1,l2
 			opcode = GlobalConstants.OPCODE_CBR;
 			
-			String loopblock = ILOCsingleton.getInstance().getNewBlock();
-			String exitblock = ILOCsingleton.getInstance().getNewBlock();
+            ILOC_block b2 = new ILOC_block();
+            ILOC_block b3 = new ILOC_block();
+            
+			String loopblock = b2.getBlockName();
+			String exitblock = b3.getBlockName();
+            //String loopblock = ILOCsingleton.getInstance().getNewBlock();
+			//String exitblock = ILOCsingleton.getInstance().getNewBlock();
 			
 			addInsructionText((new Instruction(opcode, src, loopblock, exitblock)).getSourceCode());
+			current_block.addBlockInstruction(new Instruction(opcode, src, loopblock, exitblock));
 			
 			parentNodeNo = nodeSerial; // store current node no for creating edge
 			closeTextCurrentNode();
 			// add edge from e to L1 : loopblock
 			addEdge(parentNodeNo, nodeSerial);
 			int child_1 = nodeSerial;
+			
 			createNewNode(loopblock);
+			current_block.addSuccessor(b2);
+			current_block = b2; //loop block
 			
 			// add while statements
 			((WhileStatementNode) s).getStatements().accept(this);
 			// add jmp to blockname : expression block for while
 			opcode = GlobalConstants.OPCODE_JUMPI;
 			addInsructionText((new Instruction(opcode, null, null, blockName)).getSourceCode());
-			
+			current_block.addBlockInstruction(new Instruction(opcode, null, null, blockName));
 			
 			closeTextCurrentNode();
 			// add edge to expr block of while
@@ -298,6 +379,8 @@ public class CfgVisitor implements Visitor {
 			addEdge(parentNodeNo, nodeSerial);
 			//int child_2 = nodeSerial;
 			createNewNode(exitblock);
+			current_block.addSuccessor(b3);
+			current_block = b3;
 			
 		}
 		
@@ -307,6 +390,7 @@ public class CfgVisitor implements Visitor {
 			String src = returnValueRegister;
 			
 			addInsructionText((new Instruction(opcode, src, null, null)).getSourceCode());
+			current_block.addBlockInstruction(new Instruction(opcode, src, null, null));
 		}
 		
 		
@@ -366,6 +450,7 @@ public class CfgVisitor implements Visitor {
 			String dest = ILOCsingleton.getInstance().getNextVirtualRegister();
 			
 			addInsructionText((new Instruction(opcode, src1, src2, dest)).getSourceCode());
+			current_block.addBlockInstruction(new Instruction(opcode, src1, src2, dest));
 			returnValueRegister = dest;
 		}
 		
@@ -385,6 +470,7 @@ public class CfgVisitor implements Visitor {
 			String dest = ILOCsingleton.getInstance().getNextVirtualRegister();
 
 			addInsructionText((new Instruction(opcode, src1, src2, dest)).getSourceCode());
+			current_block.addBlockInstruction(new Instruction(opcode, src1, src2, dest));
 			returnValueRegister = dest;
 		}
 		
@@ -404,6 +490,7 @@ public class CfgVisitor implements Visitor {
 			String dest = ILOCsingleton.getInstance().getNextVirtualRegister();
 
 			addInsructionText((new Instruction(opcode, src1, src2, dest)).getSourceCode());
+			current_block.addBlockInstruction(new Instruction(opcode, src1, src2, dest));
 			returnValueRegister = dest;
 		}
 		
@@ -419,6 +506,7 @@ public class CfgVisitor implements Visitor {
 				 Instruction ld = new Instruction(opcode, f.getId(), null , dest);
 				 
 				 addInsructionText(ld.getSourceCode());
+				 current_block.addBlockInstruction(ld);
 				 returnValueRegister = dest;
 			 }
 			 else if(f.getId_Type().equals("ident")) {
@@ -445,6 +533,7 @@ public class CfgVisitor implements Visitor {
 				 Instruction ld = new Instruction(opcode, src, null , dest);
 				 
 				 addInsructionText(ld.getSourceCode());
+				 current_block.addBlockInstruction(ld);
 				 returnValueRegister = dest;
 			 }
 			 else { // term = (expr)

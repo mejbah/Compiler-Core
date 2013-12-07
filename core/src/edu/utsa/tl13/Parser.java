@@ -93,7 +93,12 @@ public class Parser {
 		textForCFG = new String(visitCFG.getTextToWrite());
 		//System.out.println(textForCFG);
         
-		
+/****** temp codes for block checking ******/
+	TranslateIRtoSSA t = new TranslateIRtoSSA(visitCFG.getRootBlock());
+	
+	t.crudeSSA();
+	t.debugPrint();
+/*****end temp codes********/		
 		// return parse tree text
 		return visitor.getTextToWrite();
 		
