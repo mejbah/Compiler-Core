@@ -497,14 +497,65 @@ public class TranslateIRtoSSA {
 		
 		
 	}
+	
 	/**
 	 * call after crudeSSA() for minimal  phi function
 	 */
 	public void minimizationPhase() {
 		
+		for( String var : root.getPhiVars() ) {
+			PhiFunction phi = root.getPhiFunctions().get(var);
+			if(phi.getSources().size() == 1 ) { //only one source
+				replaceVar(root, phi.getDestination(), phi.getSources().get(0));
+				//delete the phi
+				
+			}
+			
+		}
 		
 	}
 	
+	
+	private void replaceVar( BlockSSA block, VarWithNumbers oldVar, VarWithNumbers newVar ) {
+		// edit all instruction of current block : update src with same name as phi destVar
+		for( SSAInstruction inst : block.getInstructions()) {
+			if( inst.getSrc1() != null ) {
+				if(isEqualVar(oldVar, inst.getSrc1())) {
+					inst.setSrc1(newVar);
+				}
+			}
+			if( inst.getSrc2() != null ) {
+				if(isEqualVar(oldVar, inst.getSrc2())) {
+					inst.setSrc2(newVar);
+				}
+			}
+			
+		}
+		// edit phi for successor block
+		if( block.getSuccessor1() != null) {
+			BlockSSA child1 = block.getSuccessor1();
+			PhiFunction phi = child1.getPhiFunctions().get(oldVar.getName());
+			if( phi != null ) {
+				for( VarWithNumbers v : phi.getSources() ) {
+					if(isEqualVar(v, oldVar)) {
+						v = newVar;
+					}
+				}
+			}
+		}
+		
+		
+	}
+	
+	private boolean isEqualVar( VarWithNumbers v1, VarWithNumbers v2) {
+		if( v1.getName().equals(v2.getName()) ) {
+			if( v1.getNumber() == v2.getNumber()) {
+				return true;
+			}
+		}
+		
+		return false;
+	}
 	
 	public void printSSAInstructions( BlockSSA b, Set<String> blocksVisited ) {
 		if( ! blocksVisited.contains(b.getBlockName())) {
