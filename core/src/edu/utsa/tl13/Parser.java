@@ -10,6 +10,7 @@ public class Parser {
 	String textForAST;
 	String textForCFG;
 	String textForSSA;
+	String textForMinimizeSSA;
 	
 	public Parser( ArrayList<Token> tokens ) {
 		this.tokens = new ArrayList<Token>(tokens);
@@ -94,15 +95,20 @@ public class Parser {
 		textForCFG = new String(visitCFG.getTextToWrite());
 		//System.out.println(textForCFG);
         
-/****** temp codes for block checking ******/
-//		visitCFG.debugPrint();
+
 		TranslateIRtoSSA t = new TranslateIRtoSSA(visitCFG.getRootBlock());
 	
 		t.crudeSSA();
+		
 		t.debugPrint();
 		textForSSA = t.graphVizString();
 		
-/*****end temp codes********/		
+		t.minimizationPhase();
+		textForMinimizeSSA = t.graphVizString();
+		
+//		t.minimizationPhase();
+//		t.debugPrint();
+		
 		// return parse tree text
 		return visitor.getTextToWrite();
 		
@@ -118,6 +124,10 @@ public class Parser {
 	
 	public String getTextForSSA() {
 		return textForSSA; 
+	}
+	
+	public String getTextMinimizedSSA() {
+		return textForMinimizeSSA;
 	}
 	/**
 	 * Receives parse tree root node program and constructs AST from Parse Tree

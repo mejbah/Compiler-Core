@@ -1,5 +1,6 @@
 package edu.utsa.tl13;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Set;
@@ -503,16 +504,42 @@ public class TranslateIRtoSSA {
 	 */
 	public void minimizationPhase() {
 		
-		for( String var : root.getPhiVars() ) {
-			PhiFunction phi = root.getPhiFunctions().get(var);
-			if(phi.getSources().size() == 1 ) { //only one source
-				replaceVar(root, phi.getDestination(), phi.getSources().get(0));
-				//delete the phi
+		Set<String> blockNames = new HashSet<String>();
+		if(root != null)
+			minimizeFirstPhase(root, blockNames);
 				
+	}
+	
+	public void minimizeFirstPhase( BlockSSA b, Set<String> blocksVisited ){
+		if( ! blocksVisited.contains(b.getBlockName())) {
+			blocksVisited.add(b.getBlockName());
+			ArrayList<String> deleteList = new ArrayList<>();
+			for( String var : b.getPhiVars() ) {
+				PhiFunction phi = b.getPhiFunctions().get(var);
+				if(phi.getSources().size() == 1 ) { //only one source
+					replaceVar(b, phi.getDestination(), phi.getSources().get(0));
+					//delete the phi
+					deleteList.add(var);
+				}
+			
+			}
+		
+			for( String var : deleteList ) {
+				b.getPhiVars().remove(var);
 			}
 			
+			if(b.getSuccessor1() == null) {
+				return;
+			}
+			else {
+				minimizeFirstPhase(b.getSuccessor1(), blocksVisited);
+				if( b.getSuccessor2() != null ) {
+					minimizeFirstPhase(b.getSuccessor2(), blocksVisited);
+				}
+			}
 		}
 		
+
 	}
 	
 	
@@ -536,11 +563,24 @@ public class TranslateIRtoSSA {
 			BlockSSA child1 = block.getSuccessor1();
 			PhiFunction phi = child1.getPhiFunctions().get(oldVar.getName());
 			if( phi != null ) {
-				for( VarWithNumbers v : phi.getSources() ) {
-					if(isEqualVar(v, oldVar)) {
-						v = newVar;
+
+				if(phi.getSources().remove(oldVar)) {
+					phi.getSources().add(newVar);
+				}
+			}
+			child1.getPhiFunctions().put(oldVar.getName(), phi);
+			
+			if( block.getSuccessor2() != null ) {
+				BlockSSA child2 = block.getSuccessor2();
+				phi = child2.getPhiFunctions().get(oldVar.getName());
+				if( phi != null ) {
+
+					if(phi.getSources().remove(oldVar)) {
+						phi.getSources().add(newVar);
 					}
 				}
+				child2.getPhiFunctions().put(oldVar.getName(), phi);
+				
 			}
 		}
 		

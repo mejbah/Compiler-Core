@@ -21,6 +21,7 @@ public class Compiler {
         String cfgOutName = baseName + ".iloc.cfg.dot";
         String mipsOutName = baseName + ".s";
         String ssaOutName = baseName + ".ssa.cfg.dot";
+        String minssaOutName = baseName + ".mssa.cfg.dot";
 	System.out.println("Input file: " + inputFileName);
 	System.out.println("Output file: " + parseOutName);
 	System.out.println("Output file: " + astOutName);
@@ -40,6 +41,7 @@ public class Compiler {
 	String asTree = parser.getTextForAST();
 	String cfgTree = parser.getTextForCFG();
 	String ssaTree = parser.getTextForSSA();
+	String optimalSSA = parser.getTextMinimizedSSA(); 
 //	for( Instruction inst : ILOCsingleton.getInstance().getIlocInstructionList()) {
 //    	System.out.println(inst.getInstructionSourceText());
 //    }
@@ -96,6 +98,12 @@ public class Compiler {
 	psSSACfg.print(ssaTree);
 	ssaOut.close();
 	psSSACfg.close();
+	
+	OutputStream minssaOut = new FileOutputStream(minssaOutName);
+	java.io.PrintStream psminSSACfg = new java.io.PrintStream(minssaOut);
+	psminSSACfg.print(optimalSSA);
+	minssaOut.close();
+	psminSSACfg.close();
  }
     
 }
